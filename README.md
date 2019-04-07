@@ -22,3 +22,9 @@
     pip install -r requirements.txt
     
 > Make sure to update **requirements.txt** if you add new dependencies
+
+### Run tests    
+    
+    python -m unittest -v
+   
+> All test scripts must be added in the "test/" directory, and must start with the "test_" prefix

@@ -1,10 +1,10 @@
 class User:
-    _id: str 
+    __id: str 
 
     def __init__(self, id_: str):
-        self.id = id_
+        self.__id = id_
 
     @property
     def id(self):
-        return self._id
+        return self.__id
     

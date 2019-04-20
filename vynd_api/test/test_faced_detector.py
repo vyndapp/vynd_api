@@ -1,9 +1,6 @@
-from typing import List
+from typing import List, Tuple
 import unittest
-from PIL import Image
-
 import numpy as np
-import requests
 
 from .test_utils import get_img_from_filename, url_to_img
 from ..facedetection.bounding_box import BoundingBox
@@ -31,8 +28,8 @@ class TestFacedDetector(unittest.TestCase):
     def test_non_rgb_input_bboxes(self):
         np_img = url_to_img(self.non_rgb_input_url)
         detection_result: FaceDetectionResults = self.faced_detector.detect(np_img)
-        expected_bboxes = None
-        self.assertEqual(detection_result.bboxes, expected_bboxes)
+        expected_detected_faces = None
+        self.assertEqual(detection_result.detected_faces, expected_detected_faces)
 
     def test_non_equal_dims_status(self):
         np_img = url_to_img(self.non_equal_dims_url)
@@ -43,8 +40,8 @@ class TestFacedDetector(unittest.TestCase):
     def test_non_equal_dims_bboxes(self):
         np_img = url_to_img(self.non_equal_dims_url)
         detection_result: FaceDetectionResults = self.faced_detector.detect(np_img)
-        expected_bboxes = None
-        self.assertEqual(detection_result.bboxes, expected_bboxes)
+        expected_detected_faces = None
+        self.assertEqual(detection_result.detected_faces, expected_detected_faces)
 
     def test_valid_input_status(self):
         np_img = get_img_from_filename('faced.png')
@@ -61,14 +58,38 @@ class TestFacedDetector(unittest.TestCase):
                                               BoundingBox((281, 193, 353, 271), 0.99876535),
                                               BoundingBox((357, 175, 427, 259), 0.9876309),
                                               BoundingBox((474, 175, 552, 255), 0.9892281)]
+
+        self.assertEqual(len(expected_bboxes), len(detection_result.detected_faces))
                                               
         for i in range(len(expected_bboxes)):
-            self.assertEqual(detection_result.bboxes[i].coordinates, expected_bboxes[i].coordinates)
+            self.assertEqual(detection_result.detected_faces[i].bbox.coordinates, expected_bboxes[i].coordinates)
+
         for i in range(len(expected_bboxes)):
-            actual_conf = detection_result.bboxes[i].confidence
+            actual_conf = detection_result.detected_faces[i].bbox.confidence
             expected_conf = expected_bboxes[i].confidence
             self.assertAlmostEqual(actual_conf, expected_conf, delta = self.epsilon)
 
 
+    def test_valid_input_cropped_faces(self):
+        np_img = get_img_from_filename('faced.png')
+        detection_result: FaceDetectionResults = self.faced_detector.detect(np_img)
+
+        expected_bboxes: List[BoundingBox] = [BoundingBox((76, 144, 154, 230), 0.99901056),
+                                              BoundingBox((177, 181, 257, 263), 0.99876785),
+                                              BoundingBox((281, 193, 353, 271), 0.99876535),
+                                              BoundingBox((357, 175, 427, 259), 0.9876309),
+                                              BoundingBox((474, 175, 552, 255), 0.9892281)]
+        
+        def get_shape(bbox: BoundingBox) -> Tuple[(int, int, int)]:
+            (x_upperleft, y_upperleft, x_lowerright, y_lowerright) = bbox.coordinates
+            return (y_lowerright - y_upperleft + 1, x_lowerright - x_upperleft + 1, 3)
+        expected_shapes: List[Tuple[(int, int, int)]] = list(map(get_shape, expected_bboxes))
+
+        self.assertEqual(len(expected_shapes), len(detection_result.detected_faces))
+
+        for i, _ in enumerate(expected_shapes):
+            self.assertEqual(detection_result.detected_faces[i].image.shape, expected_shapes[i])
+       
 if __name__ == '__main__':
     unittest.main()
+    

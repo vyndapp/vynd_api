@@ -1,10 +1,9 @@
-
 from typing import List, Tuple
 from faced import FaceDetector
 import numpy as np
 
 from .image_face_detector import ImageFaceDetector
-from .face_detection_results import FaceDetectionResults
+from .face_detection_results import FaceDetectionResults, DetectedFace
 from .face_detection_status import FaceDetectionStatus
 from .bounding_box import BoundingBox
 
@@ -28,7 +27,7 @@ class FacedDetector(ImageFaceDetector):
             - image: must be a numpy array of matching width and height, and three channels (RGB)
         """
         height: np.int32 = image.shape[0]
-        width: np.int32 =  image.shape[1]
+        width: np.int32 = image.shape[1]
         channels: np.int32 = image.shape[2]
         
         if(height != width):
@@ -38,7 +37,10 @@ class FacedDetector(ImageFaceDetector):
         else:
             predicted_bboxes = self.__faced.predict(frame = image, thresh = self.__minimum_confidence)
             final_bboxes: List[BoundingBox] = self.__preprocess_predicted_bboxes(predicted_bboxes)
-            return FaceDetectionResults(bboxes = final_bboxes, status = FaceDetectionStatus.SUCCESS)
+            face_images: List[np.array] = self.__get_face_images(image, final_bboxes)
+
+            detected_faces: List[DetectedFace] = list(map(lambda bbox, image: DetectedFace(bbox=bbox, image=image), final_bboxes, face_images))
+            return FaceDetectionResults(detected_faces=detected_faces, status=FaceDetectionStatus.SUCCESS)
         
     def __preprocess_predicted_bboxes(self, predicted_bboxes) -> List[BoundingBox]:
         final_bboxes: List[BoundingBox] = []
@@ -61,3 +63,9 @@ class FacedDetector(ImageFaceDetector):
             final_bboxes.append(new_bbox)
         
         return final_bboxes
+
+    def __get_face_images(self, image: np.array, final_bboxes: List[BoundingBox]) -> List[np.array]:
+        def get_face(bbox: BoundingBox) -> np.array:
+            (x_upperleft, y_upperleft, x_lowerright, y_lowerright) = bbox.coordinates
+            return image[y_upperleft: y_lowerright + 1, x_upperleft:x_lowerright + 1, :]
+        return list(map(get_face, final_bboxes))

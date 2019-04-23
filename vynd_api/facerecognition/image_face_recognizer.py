@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from ..data import FaceCollection
+from ..data.face_collection import FaceCollection
 
 class ImageFaceRecognizer(ABC):
 

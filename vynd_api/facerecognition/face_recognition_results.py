@@ -6,6 +6,7 @@ import numpy as np
 class FaceResult(NamedTuple):
     face_id: Optional[str]
     features: np.array
+    confidence: float
 
 class FaceRecognitionStatus(Enum):
     SUCCESS = 'success'

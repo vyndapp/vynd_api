@@ -1,7 +1,7 @@
 
 from typing import Tuple
 
-class BoundingBox():
+class BoundingBox:
     """Bounding box representation:
        - coordinates: (x_upper_left, y_upper_left, x_lower_right, y_lower_right)
        - confidence: a float value ranging between 0.0 and 1.0 that represents the probability that a face exists within these coordinates

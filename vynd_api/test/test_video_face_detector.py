@@ -1,7 +1,6 @@
 
-from typing import List
+from typing import List, Tuple
 
-import base64
 import requests
 import unittest
 
@@ -12,21 +11,26 @@ from ..facedetection.face_detection_status import FaceDetectionStatus
 from ..facedetection.image_face_detector import ImageFaceDetector
 from ..facedetection.video_face_detector import VideoFaceDetector
 from ..entities.image import KeyFrame
+from .test_utils import url_to_base64, get_img_from_filename, filename_to_base64
 
 class TestVideoFaceDetector(unittest.TestCase):
 
     def setUp(self):
         faced: ImageFaceDetector = FacedDetector()
         self.video_faced: VideoFaceDetector = VideoFaceDetector(faced)
-        images: List[str] = ['https://upload.wikimedia.org/wikipedia/commons/thumb/7/70/Checkerboard_pattern.svg/1200px-Checkerboard_pattern.svg.png',
-                             'https://collectionimages.npg.org.uk/std/mw198888/James-Martineau.jpg',
-                             'https://doc-0o-8s-docs.googleusercontent.com/docs/securesc/ha0ro937gcuc7l7deffksulhg5h7mbp1/l3mvvrb90ho9h0rkstgnrbr7thv7eo3d/1554645600000/13677457773113205383/*/1oe18qjXKUY_jQBFUixQUQ5wbKEkM_23B']
-        
+        hosted_images: List[str] = ['https://upload.wikimedia.org/wikipedia/commons/thumb/7/70/Checkerboard_pattern.svg/1200px-Checkerboard_pattern.svg.png',
+                                    'https://collectionimages.npg.org.uk/std/mw198888/James-Martineau.jpg']
+        local_images: List[str] = ['faced.jpg']
+
         self.epsilon: float = 0.0001
         self.key_frames = []
-        for img_url in images:
-            response_content = requests.get(img_url).content
-            key_frame = KeyFrame(base64.b64encode(response_content))
+
+        for img_url in hosted_images:
+            key_frame = KeyFrame(url_to_base64(img_url))
+            self.key_frames.append(key_frame)
+        
+        for img_path in local_images:
+            key_frame = KeyFrame(get_img_from_filename(img_path))
             self.key_frames.append(key_frame)
 
     def test_video_face_detector(self):
@@ -46,14 +50,14 @@ class TestVideoFaceDetector(unittest.TestCase):
         for i in range(len(detection_results)):
             self.assertEqual(detection_results[i].status, expected_results[i].status)
 
-            if detection_results[i].bboxes != None:
-                self.assertEqual(len(detection_results[i].bboxes), len(expected_results[i].bboxes))
+            if detection_results[i].detected_faces != None:
+                self.assertEqual(len(detection_results[i].detected_faces), len(expected_results[i].detected_faces))
                 
-                for j in range(len(detection_results[i].bboxes)):
-                    self.assertEqual(detection_results[i].bboxes[j].coordinates, expected_bboxes[j].coordinates)
-                    self.assertAlmostEqual(detection_results[i].bboxes[j].confidence, expected_bboxes[j].confidence, delta = self.epsilon)
+                for j in range(len(detection_results[i].detected_faces)):
+                    self.assertEqual(detection_results[i].detected_faces[j].bbox.coordinates, expected_bboxes[j].coordinates)
+                    self.assertAlmostEqual(detection_results[i].detected_faces[j].bbox.confidence, expected_bboxes[j].confidence, delta = self.epsilon)
             else:
-                self.assertEqual(detection_results[i].bboxes, None)
+                self.assertEqual(detection_results[i].detected_faces, None)
 
 if __name__ == '__main__':
     unittest.main()

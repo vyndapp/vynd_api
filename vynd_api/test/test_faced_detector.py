@@ -15,43 +15,42 @@ class TestFacedDetector(unittest.TestCase):
     def setUp(self):
         self.non_rgb_input_url: str = 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/70/Checkerboard_pattern.svg/1200px-Checkerboard_pattern.svg.png'
         self.non_equal_dims_url: str = 'https://collectionimages.npg.org.uk/std/mw198888/James-Martineau.jpg'
-        self.valid_input_img: np.array = get_img_from_filename('faced.png')
+        self.valid_input_path: str = 'faced.jpg'
+
+        self.valid_input_img: np.array = get_img_from_filename(self.valid_input_path)
+        self.non_equal_dims_img: np.ndarray = url_to_img(self.non_equal_dims_url)
+        self.non_rgb_input_img: np.ndarray = url_to_img(self.non_rgb_input_url)
+
         self.epsilon: float = 0.0001
         self.faced_detector: ImageFaceDetector = FacedDetector()
 
     def test_non_rgb_input_status(self):
-        np_img = url_to_img(self.non_rgb_input_url)
-        detection_result: FaceDetectionResults = self.faced_detector.detect(np_img)
+        detection_result: FaceDetectionResults = self.faced_detector.detect(self.non_rgb_input_img)
         expected_status: FaceDetectionStatus = FaceDetectionStatus.FAIL_NON_RGB_INPUT
         self.assertEqual(detection_result.status, expected_status)
 
     def test_non_rgb_input_bboxes(self):
-        np_img = url_to_img(self.non_rgb_input_url)
-        detection_result: FaceDetectionResults = self.faced_detector.detect(np_img)
+        detection_result: FaceDetectionResults = self.faced_detector.detect(self.non_rgb_input_img)
         expected_detected_faces = None
         self.assertEqual(detection_result.detected_faces, expected_detected_faces)
 
     def test_non_equal_dims_status(self):
-        np_img = url_to_img(self.non_equal_dims_url)
-        detection_result: FaceDetectionResults = self.faced_detector.detect(np_img)
+        detection_result: FaceDetectionResults = self.faced_detector.detect(self.non_equal_dims_img)
         expected_status: FaceDetectionStatus = FaceDetectionStatus.FAIL_NON_EQUAL_DIMS
         self.assertEqual(detection_result.status, expected_status)
 
     def test_non_equal_dims_bboxes(self):
-        np_img = url_to_img(self.non_equal_dims_url)
-        detection_result: FaceDetectionResults = self.faced_detector.detect(np_img)
+        detection_result: FaceDetectionResults = self.faced_detector.detect(self.non_equal_dims_img)
         expected_detected_faces = None
         self.assertEqual(detection_result.detected_faces, expected_detected_faces)
 
     def test_valid_input_status(self):
-        np_img = get_img_from_filename('faced.png')
-        detection_result: FaceDetectionResults = self.faced_detector.detect(np_img)
+        detection_result: FaceDetectionResults = self.faced_detector.detect(self.valid_input_img)
         expected_status: FaceDetectionStatus = FaceDetectionStatus.SUCCESS
         self.assertEqual(detection_result.status, expected_status)
     
     def test_valid_input_bboxes(self):
-        np_img = get_img_from_filename('faced.png')
-        detection_result: FaceDetectionResults = self.faced_detector.detect(np_img)
+        detection_result: FaceDetectionResults = self.faced_detector.detect(self.valid_input_img)
 
         expected_bboxes: List[BoundingBox] = [BoundingBox((76, 144, 154, 230), 0.99901056),
                                               BoundingBox((177, 181, 257, 263), 0.99876785),
@@ -71,8 +70,7 @@ class TestFacedDetector(unittest.TestCase):
 
 
     def test_valid_input_cropped_faces(self):
-        np_img = get_img_from_filename('faced.png')
-        detection_result: FaceDetectionResults = self.faced_detector.detect(np_img)
+        detection_result: FaceDetectionResults = self.faced_detector.detect(self.valid_input_img)
 
         expected_bboxes: List[BoundingBox] = [BoundingBox((76, 144, 154, 230), 0.99901056),
                                               BoundingBox((177, 181, 257, 263), 0.99876785),

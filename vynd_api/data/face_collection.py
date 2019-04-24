@@ -1,7 +1,7 @@
 from typing import Optional, List, NamedTuple
-import json
-from data import CLIENT
+from . import CLIENT
 
+import json
 
 ## Will not necessarily be used but will act as current Schemas
 

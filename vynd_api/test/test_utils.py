@@ -8,9 +8,9 @@ import requests
 import base64
 import os
 
-def get_img_from_filename(img_name: str):
+def get_img_from_filename(filename: str):
     cur_dir = os.path.dirname(__file__)
-    impath = Path(cur_dir, 'resources/' + img_name)#os.path.join(cur_dir, 'resources\\' + img_name)
+    impath = Path(cur_dir, filename)#os.path.join(cur_dir, 'resources\\' + img_name)
     img = Image.open(impath)
     return np.asarray(img)
 
@@ -24,9 +24,23 @@ def get_all_local_images() -> List[np.ndarray]:
     for file in os.listdir(directory):
         filename = os.fsdecode(file)
         if filename.endswith(".png") or filename.endswith(".jpg"):
-            local_images.append(get_img_from_filename(filename))
+            local_images.append(get_img_from_filename('resources/' + filename))
             
     return local_images
+
+def get_all_cropped_images() -> List[np.ndarray]:
+    cur_dir = os.path.dirname(__file__)
+    cur_path = Path(cur_dir, 'detected_faces/')
+    directory = os.fsencode(cur_path)
+
+    cropped_images = []
+
+    for file in os.listdir(directory):
+        filename = os.fsdecode(file)
+        if filename.endswith(".png") or filename.endswith(".jpg"):
+            cropped_images.append(get_img_from_filename('detected_faces/' + filename))
+            
+    return cropped_images
 
 def save_img(image: np.array, img_name: str):
     cur_dir = os.path.dirname(__file__)

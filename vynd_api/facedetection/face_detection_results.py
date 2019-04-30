@@ -2,6 +2,9 @@
 from typing import List, Optional, NamedTuple
 
 import numpy as np
+import json
+
+from ..utils import numpy_encoder
 from .bounding_box import BoundingBox
 from .face_detection_status import FaceDetectionStatus
 
@@ -14,6 +17,10 @@ class DetectedFace(NamedTuple):
 
     bbox: BoundingBox
     image: np.array
+    
+    @property
+    def json_image(self):
+        return json.dumps(self.image, cls = numpy_encoder.NumpyEncoder)
 
 class FaceDetectionResults:
     """

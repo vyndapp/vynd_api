@@ -1,5 +1,9 @@
+
 import unittest
 import numpy as np
+import json
+
+from ..utils import numpy_encoder
 from ..data import CLIENT
 from ..data.face_collection import FaceCollection
 
@@ -11,7 +15,7 @@ class TestFaceCollection(unittest.TestCase):
    def test_insert_face(self):
       features = np.random.uniform(low=0.5, high=10, size=(5,))
       self.face_collection.insert_face(
-         features=features,
+         features=json.dumps(features, cls=numpy_encoder.NumpyEncoder),
          confidence=0.77,
          video_id=123
       )

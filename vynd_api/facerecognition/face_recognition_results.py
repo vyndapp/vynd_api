@@ -12,7 +12,7 @@ class FaceRecognitionStatus(Enum):
     SUCCESS = 'success'
 
 class FaceRecognitionResults(NamedTuple):
-
+    
     """
     Result returned by the Face Recognition for a single Key Frame, which may have
     more than one cropped Face. A FaceResult for each such image

@@ -1,5 +1,6 @@
 from typing import List, Tuple
 from faced import FaceDetector
+
 import numpy as np
 
 from .image_face_detector import ImageFaceDetector
@@ -9,7 +10,7 @@ from .bounding_box import BoundingBox
 
 class FacedDetector(ImageFaceDetector):
     
-    def __init__(self, minimum_confidence = 0.8, offset_value = 20):
+    def __init__(self, minimum_confidence = 0.4, offset_value = 20):
         """
             Faced Face Detection Algorithm:
             - A single shot detection algorithm with CPU bound performance based on CNNs
@@ -26,13 +27,9 @@ class FacedDetector(ImageFaceDetector):
             Takes as input an image and returns the Face Detection Results (status, bounding boxes) for that specific image:
             - image: must be a numpy array of matching width and height, and three channels (RGB)
         """
-        height: np.int32 = image.shape[0]
-        width: np.int32 = image.shape[1]
         channels: np.int32 = image.shape[2]
         
-        if(height != width):
-            return FaceDetectionResults(status = FaceDetectionStatus.FAIL_NON_EQUAL_DIMS)
-        elif(channels != self.__expected_n_channels):
+        if(channels != self.__expected_n_channels):
             return FaceDetectionResults(status = FaceDetectionStatus.FAIL_NON_RGB_INPUT)
         else:
             predicted_bboxes = self.__faced.predict(frame = image, thresh = self.__minimum_confidence)

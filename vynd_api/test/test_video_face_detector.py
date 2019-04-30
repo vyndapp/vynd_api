@@ -1,5 +1,6 @@
 
 from typing import List, Tuple
+from PIL import Image
 
 import requests
 import unittest
@@ -11,15 +12,14 @@ from ..facedetection.face_detection_status import FaceDetectionStatus
 from ..facedetection.image_face_detector import ImageFaceDetector
 from ..facedetection.video_face_detector import VideoFaceDetector
 from ..entities.image import KeyFrame
-from .test_utils import url_to_base64, get_img_from_filename, filename_to_base64
+from .test_utils import url_to_base64, get_img_from_filename, save_img
 
 class TestVideoFaceDetector(unittest.TestCase):
 
     def setUp(self):
-        faced: ImageFaceDetector = FacedDetector()
+        faced: ImageFaceDetector = FacedDetector(minimum_confidence=0.8, offset_value=20)
         self.video_faced: VideoFaceDetector = VideoFaceDetector(faced)
-        hosted_images: List[str] = ['https://upload.wikimedia.org/wikipedia/commons/thumb/7/70/Checkerboard_pattern.svg/1200px-Checkerboard_pattern.svg.png',
-                                    'https://collectionimages.npg.org.uk/std/mw198888/James-Martineau.jpg']
+        hosted_images: List[str] = ['https://upload.wikimedia.org/wikipedia/commons/thumb/7/70/Checkerboard_pattern.svg/1200px-Checkerboard_pattern.svg.png']
         local_images: List[str] = ['faced.jpg']
 
         self.epsilon: float = 0.0001
@@ -40,7 +40,6 @@ class TestVideoFaceDetector(unittest.TestCase):
                                               BoundingBox((357, 175, 427, 259), 0.9876309),
                                               BoundingBox((474, 175, 552, 255), 0.9892281)]
         expected_results = [FaceDetectionResults(FaceDetectionStatus.FAIL_NON_RGB_INPUT, None),
-                            FaceDetectionResults(FaceDetectionStatus.FAIL_NON_EQUAL_DIMS, None),
                             FaceDetectionResults(FaceDetectionStatus.SUCCESS, expected_bboxes)] 
     
         detection_results: List[FaceDetectionResults] = self.video_faced.get_detected_results(key_frames = self.key_frames)
@@ -56,6 +55,7 @@ class TestVideoFaceDetector(unittest.TestCase):
                 for j in range(len(detection_results[i].detected_faces)):
                     self.assertEqual(detection_results[i].detected_faces[j].bbox.coordinates, expected_bboxes[j].coordinates)
                     self.assertAlmostEqual(detection_results[i].detected_faces[j].bbox.confidence, expected_bboxes[j].confidence, delta = self.epsilon)
+                    
             else:
                 self.assertEqual(detection_results[i].detected_faces, None)
 

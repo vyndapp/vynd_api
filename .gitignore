@@ -6,3 +6,4 @@ __pycache__
 .pylintrc
 .mypy_cache
 vynd_api/test/detected_faces
+vynd_api/models/vggface2

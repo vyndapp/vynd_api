@@ -1,6 +1,7 @@
 """ helper functions for parsing images from one format to another """
 
 import base64
+import cv2
 import numpy as np
 
 from PIL import Image
@@ -11,3 +12,6 @@ def base64_to_rgb(base64_text):
     img = base64.decodebytes(base64_text)
     pil_img = Image.open(BytesIO(img))
     return np.asarray(pil_img)
+
+def resize_image(image, new_shape=(96, 96)):
+    return cv2.resize(image, new_shape) 

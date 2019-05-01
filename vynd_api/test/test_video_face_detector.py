@@ -20,7 +20,7 @@ class TestVideoFaceDetector(unittest.TestCase):
         faced: ImageFaceDetector = FacedDetector(minimum_confidence=0.8, offset_value=20)
         self.video_faced: VideoFaceDetector = VideoFaceDetector(faced)
         hosted_images: List[str] = ['https://upload.wikimedia.org/wikipedia/commons/thumb/7/70/Checkerboard_pattern.svg/1200px-Checkerboard_pattern.svg.png']
-        local_images: List[str] = ['faced.jpg']
+        local_images: List[str] = ['resources/faced.jpg']
 
         self.epsilon: float = 0.0001
         self.key_frames = []

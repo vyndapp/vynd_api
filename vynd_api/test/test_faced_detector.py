@@ -15,7 +15,7 @@ class TestFacedDetector(unittest.TestCase):
     def setUp(self):
         self.non_rgb_input_url: str = 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/70/Checkerboard_pattern.svg/1200px-Checkerboard_pattern.svg.png'
         self.non_equal_dims_url: str = 'https://collectionimages.npg.org.uk/std/mw198888/James-Martineau.jpg'
-        self.valid_input_path: str = 'faced.jpg'
+        self.valid_input_path: str = 'resources/faced.jpg'
 
         self.valid_input_img: np.array = get_img_from_filename(self.valid_input_path)
         self.non_equal_dims_img: np.ndarray = url_to_img(self.non_equal_dims_url)

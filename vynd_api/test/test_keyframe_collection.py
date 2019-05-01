@@ -11,7 +11,7 @@ import unittest
 class TestKeyFrameCollection(unittest.TestCase):
 
     def setUp(self):
-        img = get_img_from_filename('faced.jpg')
+        img = get_img_from_filename('resources/faced.jpg')
         self.keyframe = KeyFrame(img)
         self.keyframe_collection = KeyFrameCollection()
 

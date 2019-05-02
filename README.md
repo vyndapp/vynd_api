@@ -28,3 +28,8 @@
     python -m unittest -v
    
 > All test scripts must be added in the "test/" directory, and must start with the "test_" prefix
+
+### Add face recognition models
+- You will have to download the file in [***this link***](https://drive.google.com/open?id=1eqd-NRBc6JR_gUtIXt-ZO7gargrvwsjn)
+- Extract the compressed file
+- Place the file named **'vggface2.pb'** into the **'vynd_api/models/vggface2/'** directory

@@ -3,18 +3,19 @@ import tensorflow as tf
 import numpy as np
 
 from .image_face_recognizer import ImageFaceRecognizer
-from ..utils.vggface2_utlis import load_model, normalize_image
-from ..utils.image_utils import resize_image
+from ..utils import vggface2_utlis, image_utils
 
 class VGGFaceRecognizer(ImageFaceRecognizer):
     def __init__(self):
         vggface_path = '../models/vggface2/vggface2.pb' # frozen graph path
         self.default_dims = (160, 160) # input dimensions for the model
+        self.sess = vggface2_utlis.load_model(vggface_path) # load the frozen model into a session object
+        self.__initialize_tensors()
 
+    def __initialize_tensors(self):
         input_tensor_name = "import/input:0"
         phase_train_tensor_name = "import/phase_train:0"
         embedding_tensor_name = "import/embeddings:0"
-        self.sess = load_model(vggface_path) # load the frozen model into a session object
         self.input_tensor = self.sess.graph.get_tensor_by_name(input_tensor_name)
         self.phase_train_tensor = self.sess.graph.get_tensor_by_name(phase_train_tensor_name)
         self.embedding_tensor = self.sess.graph.get_tensor_by_name(embedding_tensor_name)
@@ -32,13 +33,13 @@ class VGGFaceRecognizer(ImageFaceRecognizer):
         """
         Transform a cropped face's image into a vector of shape (512,) which is the feature vector
         """
-        image = resize_image(image, new_shape=self.default_dims)
-        image = normalize_image(image)
-        image = np.array([image])
-        embedding = self.sess.run(self.embedding_tensor, feed_dict={self.input_tensor: image, self.phase_train_tensor: False})
+        image = self.__preprocess_image(image)
+        embedding = self.sess.run(self.embedding_tensor, 
+                                  feed_dict={self.input_tensor: image, 
+                                             self.phase_train_tensor: False})
         return np.squeeze(embedding)
 
-# vgg = VGGFaceRecognizer()
-# img = np.random.rand(256, 256, 3)
-# emb = vgg.recognize(img)
-# print(type(emb), len(emb))
+    def __preprocess_image(self, image: np.ndarray) -> np.ndarray:
+        image = image_utils.resize_image(image, new_shape=self.default_dims)
+        image = vggface2_utlis.normalize_image(image)
+        return np.array([image]) # single image (n, n, 3) to batch (1, n, n, 3)

@@ -24,9 +24,12 @@ class FaceNetRecognizer(ImageFaceRecognizer):
         """
         Transform a cropped face's image into a vector of shape (128,) which is the feature vector
         """
+        image = self.__preprocess_image(image)
+        embedding = self.facenet.predict_on_batch(image)[0]
+        return np.squeeze(embedding)
+
+    def __preprocess_image(self, image: np.ndarray) -> np.ndarray:
         image = image_utils.resize_image(image, self.default_dims)
         img = image[...,::-1]
-        img = facenet_utils.normalize_image(img, channels_first=channels_first)
-        x_train = np.array([img])
-        embedding = self.facenet.predict_on_batch(x_train)[0]
-        return np.squeeze(embedding)
+        img = facenet_utils.normalize_image(img)
+        return np.array([img])

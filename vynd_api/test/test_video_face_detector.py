@@ -11,7 +11,7 @@ from ..facedetection.face_detection_results import FaceDetectionResults
 from ..facedetection.face_detection_status import FaceDetectionStatus
 from ..facedetection.image_face_detector import ImageFaceDetector
 from ..facedetection.video_face_detector import VideoFaceDetector
-from ..entities.image import KeyFrame
+from ..entities.keyframe import KeyFrame
 from .test_utils import url_to_base64, get_img_from_filename, save_img
 
 class TestVideoFaceDetector(unittest.TestCase):

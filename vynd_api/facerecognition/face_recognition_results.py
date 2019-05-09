@@ -5,14 +5,13 @@ import numpy as np
 
 class FaceResult(NamedTuple):
     face_id: Optional[str]
-    features: np.array
+    features: np.ndarray
     confidence: float
 
 class FaceRecognitionStatus(Enum):
     SUCCESS = 'success'
 
 class FaceRecognitionResults(NamedTuple):
-    
     """
     Result returned by the Face Recognition for a single Key Frame, which may have
     more than one cropped Face. A FaceResult for each such image

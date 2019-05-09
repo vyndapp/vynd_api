@@ -1,5 +1,5 @@
 from typing import List
-from .image import KeyFrame
+from .keyframe import KeyFrame
 
 import json
 

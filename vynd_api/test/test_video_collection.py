@@ -3,7 +3,7 @@ from typing import List
 from ..data.video_collection import VideoCollection
 from ..data.keyframe_collection import KeyFrameCollection
 from ..entities.video import Video
-from ..entities.image import KeyFrame
+from ..entities.keyframe import KeyFrame
 from .test_utils import get_all_local_images
 
 import numpy as np

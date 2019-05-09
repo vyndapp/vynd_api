@@ -14,8 +14,8 @@ def download_vggface_model():
         id_vgg = '1eqd-NRBc6JR_gUtIXt-ZO7gargrvwsjn'
         # id_test = '1XBDOcqsnN9uk6EQY2OgQR97QOLc7Mpvj'
         pb_file_link = 'https://drive.google.com/uc?id=' + id_vgg
-        gdown.download(pb_file_link, str(rar_vgg_path), False)
-        patoolib.extract_archive(str(rar_vgg_path), outdir=str(vgg_path))
-        os.remove(rar_vgg_path)
+        gdown.download(pb_file_link, str(rar_vgg_path), False) # download rar file from google drive
+        patoolib.extract_archive(str(rar_vgg_path), outdir=str(vgg_path)) # extract the file
+        os.remove(rar_vgg_path) # remove the rar file
     else:
         print("VGGFace2 .pb file is already installed")

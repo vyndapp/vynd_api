@@ -19,3 +19,9 @@ class VideoCollection:
 
     def delete_all_videos(self):
         self._collection.delete_many({})
+
+    def get_all_video(self):
+        self._collection.find()
+
+# vc = VideoCollection()
+# vc.delete_all_videos()

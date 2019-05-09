@@ -2,7 +2,7 @@ from typing import List
 
 from .image_face_detector import ImageFaceDetector
 from .face_detection_results import FaceDetectionResults
-from ..entities.image import KeyFrame
+from ..entities.keyframe import KeyFrame
 
 class VideoFaceDetector():
 

@@ -1,8 +1,8 @@
-from typing import Optional, List
-from . import CLIENT
-from ..entities.image import KeyFrame
 
 import json
+
+from . import CLIENT
+from ..entities.keyframe import KeyFrame
 
 class KeyFrameCollection:
     def __init__(self, collection=CLIENT.vynd_db.keyframe_collection):
@@ -18,3 +18,12 @@ class KeyFrameCollection:
     
     def delete_all_keyframes(self):
         self._collection.delete_many({})
+
+    def get_all_keyframes(self):
+        return self._collection.find()
+
+# kfc = KeyFrameCollection()
+# all_kf = kfc.get_all_keyframes()
+# for x in all_kf:
+#     print(x["video_id"])
+# kfc.delete_all_keyframes()

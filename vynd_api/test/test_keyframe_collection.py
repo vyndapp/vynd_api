@@ -2,7 +2,7 @@ from typing import List
 
 from ..data.keyframe_collection import KeyFrameCollection
 from ..entities.video import Video
-from ..entities.image import KeyFrame
+from ..entities.keyframe import KeyFrame
 from .test_utils import get_img_from_filename
 
 import numpy as np

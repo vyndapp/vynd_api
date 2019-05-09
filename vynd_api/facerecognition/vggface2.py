@@ -2,7 +2,11 @@
 import tensorflow as tf
 import numpy as np
 
+from typing import List, Optional, NamedTuple
+
 from .image_face_recognizer import ImageFaceRecognizer
+from .face_recognition_results import FaceRecognitionResults, FaceResult, FaceRecognitionStatus
+from ..facedetection.face_detection_results import DetectedFace
 from ..utils import vggface2_utlis, image_utils
 
 class VGGFaceRecognizer(ImageFaceRecognizer):
@@ -26,8 +30,17 @@ class VGGFaceRecognizer(ImageFaceRecognizer):
         """
         self.sess.close()
 
-    def recognize(self, image: np.ndarray):
-        return self.__image_to_embedding(image)
+    def recognize(self, detected_faces: List[DetectedFace]) -> FaceRecognitionResults:
+        """
+        Creates a FaceRecognitionResults for each keyframe's list of DetectedFaces
+        """
+        face_results: List[FaceResult] = []
+        for face in detected_faces:
+            face_embedding = self.__image_to_embedding(face.image)
+            face_results.append(FaceResult(features=face_embedding, 
+                                           confidence=face.bbox.confidence,
+                                           face_id=None))
+        return FaceRecognitionResults(faces=face_results, status=FaceRecognitionStatus.SUCCESS)
 
     def __image_to_embedding(self, image: np.ndarray) -> np.ndarray:
         """

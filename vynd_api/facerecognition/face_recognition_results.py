@@ -1,15 +1,8 @@
-from typing import Optional, NamedTuple, List
-from enum import Enum
 
-import numpy as np
+from typing import NamedTuple, List
 
-class FaceResult(NamedTuple):
-    face_id: Optional[str]
-    features: np.ndarray
-    confidence: float
-
-class FaceRecognitionStatus(Enum):
-    SUCCESS = 'success'
+from .face_embedding import FaceEmbedding
+from .face_recognition_status import FaceRecognitionStatus
 
 class FaceRecognitionResults(NamedTuple):
     """
@@ -18,5 +11,5 @@ class FaceRecognitionResults(NamedTuple):
     - status : Enumerator that signals the status of recognition
     - faces: List of found faces in the processed frame
     """
-    faces: List[FaceResult]
+    faces: List[FaceEmbedding]
     status: FaceRecognitionStatus

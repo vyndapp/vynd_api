@@ -5,7 +5,9 @@ import numpy as np
 from typing import List, Optional, NamedTuple
 
 from .image_face_recognizer import ImageFaceRecognizer
-from .face_recognition_results import FaceRecognitionResults, FaceResult, FaceRecognitionStatus
+from .face_recognition_results import FaceRecognitionResults
+from .face_recognition_status import FaceRecognitionStatus
+from .face_embedding import FaceEmbedding
 from ..facedetection.face_detection_results import DetectedFace
 from ..utils import vggface2_utlis, image_utils
 
@@ -34,12 +36,11 @@ class VGGFaceRecognizer(ImageFaceRecognizer):
         """
         Creates a FaceRecognitionResults for each keyframe's list of DetectedFaces
         """
-        face_results: List[FaceResult] = []
+        face_results: List[FaceEmbedding] = []
         for face in detected_faces:
             face_embedding = self.__image_to_embedding(face.image)
-            face_results.append(FaceResult(features=face_embedding, 
-                                           confidence=face.bbox.confidence,
-                                           face_id=None))
+            face_results.append(FaceEmbedding(features=face_embedding, 
+                                              confidence=face.bbox.confidence))
         return FaceRecognitionResults(faces=face_results, status=FaceRecognitionStatus.SUCCESS)
 
     def __image_to_embedding(self, image: np.ndarray) -> np.ndarray:

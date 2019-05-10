@@ -38,7 +38,8 @@ class TestDetectAndCrop(unittest.TestCase):
         self.keyframe_collection = KeyFrameCollection()
 
         self.key_frames: KeyFrame = []
-        local_images: List[np.ndarray] = get_all_local_images()
+        local_images: List[np.ndarray] = get_all_local_images('resources/')
+        print(len(local_images))
         
         for img in local_images:
             key_frame = KeyFrame(img)
@@ -61,7 +62,7 @@ class TestDetectAndCrop(unittest.TestCase):
         for i in range(len(detection_results)):
             if detection_results[i].detected_faces != None:
                 for j in range(len(detection_results[i].detected_faces)):
-                    save_img(detection_results[i].detected_faces[j].image, str(i) + str(j) + '.png')
+                    save_img('detected_faces/', detection_results[i].detected_faces[j].image, str(i) + str(j) + '.png')
         
         recognition_results: FaceRecognitionResults = self.video_recognizer.recognize(detection_results)
         

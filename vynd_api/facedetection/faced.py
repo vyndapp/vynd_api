@@ -7,6 +7,7 @@ from .image_face_detector import ImageFaceDetector
 from .face_detection_results import FaceDetectionResults, DetectedFace
 from .face_detection_status import FaceDetectionStatus
 from .bounding_box import BoundingBox
+from ..test.test_utils import save_img
 
 class FacedDetector(ImageFaceDetector):
     
@@ -27,19 +28,52 @@ class FacedDetector(ImageFaceDetector):
             Takes as input an image and returns the Face Detection Results (status, bounding boxes) for that specific image:
             - image: must be a numpy array of matching width and height, and three channels (RGB)
         """
+        square_image = self.__rectangle_to_square_image(image)
+        # save_img('square_faces/', square_image, str(np.random.randint(1000)) + '.png')
+        padded_image = self.__pad_image(square_image, 10)
+        # save_img('padded_faces/', padded_image, str(np.random.randint(1000)) + '.png')                              
+
         channels: np.int32 = image.shape[2]
         
         if(channels != self.__expected_n_channels):
             return FaceDetectionResults(status = FaceDetectionStatus.FAIL_NON_RGB_INPUT)
         else:
-            predicted_bboxes = self.__faced.predict(frame = image, thresh = self.__minimum_confidence)
-            final_bboxes: List[BoundingBox] = self.__preprocess_predicted_bboxes(predicted_bboxes)
-            face_images: List[np.array] = self.__get_face_images(image, final_bboxes)
+            predicted_bboxes = self.__faced.predict(frame = padded_image, thresh = self.__minimum_confidence)
+            final_bboxes: List[BoundingBox] = self.__preprocess_predicted_bboxes(predicted_bboxes, 
+                                                                                 image_width=image.shape[1], 
+                                                                                 image_height=image.shape[0])
+            face_images: List[np.array] = self.__get_face_images(square_image, final_bboxes)
 
             detected_faces: List[DetectedFace] = list(map(lambda bbox, image: DetectedFace(bbox=bbox, image=image), final_bboxes, face_images))
             return FaceDetectionResults(detected_faces=detected_faces, status=FaceDetectionStatus.SUCCESS)
+
+    def __pad_image(self, image: np.ndarray, pad_value: int) -> np.ndarray:
+        return np.pad(image, 
+                      ((pad_value, pad_value), (pad_value, pad_value), (0, 0)), 
+                      mode='constant', 
+                      constant_values=255)
+
+    def __rectangle_to_square_image(self, image: np.ndarray) -> np.ndarray:
+        image_width, image_height = image.shape[1], image.shape[0]
+        if(image_height == image_width):
+            return image
+        elif(image_height > image_width):
+            remaining = (image_height - image_width) // 2
+            square_image = np.pad(image,
+                                  ((0, 0), (remaining, remaining), (0, 0)),
+                                  mode='constant',
+                                  constant_values=0)
+            return square_image
+        else:
+            remaining = (image_width - image_height) // 2
+            square_image = np.pad(image,
+                                  ((remaining, remaining), (0, 0), (0, 0)),
+                                  mode='constant',
+                                  constant_values=0)
+            return square_image
+
         
-    def __preprocess_predicted_bboxes(self, predicted_bboxes) -> List[BoundingBox]:
+    def __preprocess_predicted_bboxes(self, predicted_bboxes, image_width: int, image_height: int) -> List[BoundingBox]:
         final_bboxes: List[BoundingBox] = []
         
         for bbox in predicted_bboxes:
@@ -49,10 +83,10 @@ class FacedDetector(ImageFaceDetector):
             height: int = bbox[3] // 2
             confidence: float = bbox[4]
             
-            x_upperleft: int = x_center - (width + self.__offset_value)
-            y_upperleft: int = y_center - (height + self.__offset_value)
-            x_lowerright: int = x_center + (width + self.__offset_value)
-            y_lowerright: int = y_center + (height + self.__offset_value)
+            x_upperleft: int = max(0, x_center - (width + self.__offset_value))
+            y_upperleft: int = max(0, y_center - (height + self.__offset_value))
+            x_lowerright: int = min(image_width - 1, x_center + (width + self.__offset_value))
+            y_lowerright: int = min(image_height - 1, y_center + (height + self.__offset_value))
             
             coordinates: Tuple[int, int, int, int] = (x_upperleft, y_upperleft, x_lowerright, y_lowerright)
             

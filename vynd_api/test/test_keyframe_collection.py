@@ -1,5 +1,6 @@
 from typing import List
 
+from ..data import CLIENT
 from ..data.keyframe_collection import KeyFrameCollection
 from ..entities.video import Video
 from ..entities.keyframe import KeyFrame
@@ -13,7 +14,7 @@ class TestKeyFrameCollection(unittest.TestCase):
     def setUp(self):
         img = get_img_from_filename('resources/faced.jpg')
         self.keyframe = KeyFrame(img)
-        self.keyframe_collection = KeyFrameCollection()
+        self.keyframe_collection = KeyFrameCollection(collection=CLIENT.vynd_db_test.keyframe_collection)
 
     def test_keyframe_collection(self):
         video_id = "dummy_id"

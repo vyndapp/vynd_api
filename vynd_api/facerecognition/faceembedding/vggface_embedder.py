@@ -1,37 +1,43 @@
 
-import tensorflow as tf
 import numpy as np
+import time
 
-from typing import List, Optional, NamedTuple
+from typing import List
 
 from .image_faces_embedder import ImageFacesEmbedder
 from .face_embedding_results import FaceEmbeddingResults
-from .face_embedding_status import FaceEmbeddingStatus
 from .face_embedding import FaceEmbedding
 from . import DetectedFace
 from .. import vggface2_utlis, image_utils
 
 class VGGFaceEmbedder(ImageFacesEmbedder):
+    """
+    Generates FaceEmbedding for each DetectedFace in a specific KeyFrame
+    """
     
     def __init__(self):
         self.__vggface_path = '../models/vggface2/vggface2.pb' # frozen graph path
         self.__default_dims = (160, 160) # input dimensions for the model
 
+    def __enter__(self):
+        self.__open_session()
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.__close_session()
+
     def faces_to_embeddings(self, detected_faces: List[DetectedFace]) -> FaceEmbeddingResults:
         """
         Creates a FaceEmbeddingResults for each keyframe's list of DetectedFaces
         """
-        self.__open_session()
-
         face_results: List[FaceEmbedding] = []
         for face in detected_faces:
             face_embedding = self.__image_to_embedding(face.image)
             face_results.append(FaceEmbedding(features=face_embedding, 
+                                              face_image=face.image,
                                               confidence=face.bbox.confidence))
 
-        self.__close_session()
-        return FaceEmbeddingResults(faces=face_results, 
-                                    status=FaceEmbeddingStatus.SUCCESS)
+        return FaceEmbeddingResults(faces=face_results)
 
     def __open_session(self):
         self.__sess = vggface2_utlis.load_model(self.__vggface_path) # load the frozen model into a session object
@@ -59,6 +65,10 @@ class VGGFaceEmbedder(ImageFacesEmbedder):
         return np.squeeze(embedding)
 
     def __preprocess_image(self, image: np.ndarray) -> np.ndarray:
+        """
+        - Resize the image
+        - Normalize the image
+        """
         image = image_utils.resize_image(image, 
                                          new_shape=self.__default_dims)
         image = vggface2_utlis.normalize_image(image)

@@ -15,7 +15,7 @@ class TestDetectAndCrop(unittest.TestCase):
 
     def setUp(self):
         # detector
-        faced: ImageFaceDetector = FacedDetector(minimum_confidence = 0.8, offset_value = 0)
+        faced: ImageFaceDetector = FacedDetector(minimum_confidence = 0.9, offset_value = 20, pad_value=10)
         self.video_faced: VideoFaceDetector = VideoFaceDetector(faced)
         # keyframes
         self.key_frames: KeyFrame = []
@@ -24,7 +24,6 @@ class TestDetectAndCrop(unittest.TestCase):
         for img in local_images:
             key_frame = KeyFrame(img)
             self.key_frames.append(key_frame)
-
 
     def test_detect_and_crop_from_local(self):
         detection_results: List[FaceDetectionResults] = self.video_faced.get_detected_results(key_frames = self.key_frames)

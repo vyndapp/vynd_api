@@ -25,6 +25,7 @@ class DetectedFace(NamedTuple):
 class FaceDetectionResults:
     """
         The results returned by the Face Detection Module per frame:
+        - keyframe_id: str
         - status: an enumerator for the status of the detection
         - detected_faces: a list of detected faces in the processed frame
     """

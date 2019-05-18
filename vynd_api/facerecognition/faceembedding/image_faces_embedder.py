@@ -14,5 +14,3 @@ class ImageFacesEmbedder(ABC):
     @abstractmethod
     def faces_to_embeddings(self, detected_faces: List[DetectedFace]) -> FaceEmbeddingResults:
         pass
-        
-        

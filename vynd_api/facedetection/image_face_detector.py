@@ -1,3 +1,6 @@
+
+import numpy as np
+
 from abc import ABC, abstractmethod
 from .face_detection_results import FaceDetectionResults
 
@@ -8,5 +11,5 @@ class ImageFaceDetector(ABC):
         self.__offset_value = offset_value
     
     @abstractmethod
-    def detect(self, image) -> FaceDetectionResults:
+    def detect(self, image: np.ndarray) -> FaceDetectionResults:
         pass

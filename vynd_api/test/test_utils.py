@@ -11,20 +11,21 @@ import os
 def get_img_from_filename(filename: str):
     cur_dir = os.path.dirname(__file__)
     impath = Path(cur_dir, filename)#os.path.join(cur_dir, 'resources\\' + img_name)
-    img = Image.open(impath)
-    return np.asarray(img)
+    # img = Image.open(impath)
+    with Image.open(impath) as img:
+        return np.asarray(img)
 
-def get_all_local_images() -> List[np.ndarray]:
+def get_all_local_images(dir: str) -> List[np.ndarray]:
     cur_dir = os.path.dirname(__file__)
-    cur_path = Path(cur_dir, 'resources/')
+    cur_path = Path(cur_dir, dir)
     directory = os.fsencode(cur_path)
 
     local_images = []
 
     for file in os.listdir(directory):
         filename = os.fsdecode(file)
-        if filename.endswith(".png") or filename.endswith(".jpg"):
-            local_images.append(get_img_from_filename('resources/' + filename))
+        if filename.endswith(".png") or filename.endswith(".jpg") or filename.endswith(".JPG") or filename.endswith(".jpeg"):
+            local_images.append(get_img_from_filename(dir + filename))
             
     return local_images
 
@@ -42,9 +43,9 @@ def get_all_cropped_images() -> List[np.ndarray]:
             
     return cropped_images
 
-def save_img(image: np.array, img_name: str):
+def save_img(dir:str, image: np.array, img_name: str):
     cur_dir = os.path.dirname(__file__)
-    impath = Path(cur_dir, 'detected_faces/' + img_name)
+    impath = Path(cur_dir, dir + img_name)
     img = Image.fromarray(image)
     img.save(impath)
 

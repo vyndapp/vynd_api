@@ -8,55 +8,57 @@ from ..facedetection.faced import FacedDetector
 from ..facedetection.face_detection_results import FaceDetectionResults
 from ..facedetection.face_detection_status import FaceDetectionStatus
 from ..facedetection.image_face_detector import ImageFaceDetector
+from ..entities.keyframe import KeyFrame
 
 
 class TestFacedDetector(unittest.TestCase):
 
     def setUp(self):
         self.non_rgb_input_url: str = 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/70/Checkerboard_pattern.svg/1200px-Checkerboard_pattern.svg.png'
-        self.non_equal_dims_url: str = 'https://collectionimages.npg.org.uk/std/mw198888/James-Martineau.jpg'
         self.valid_input_path: str = 'resources/faced.jpg'
 
         self.valid_input_img: np.array = get_img_from_filename(self.valid_input_path)
-        self.non_equal_dims_img: np.ndarray = url_to_img(self.non_equal_dims_url)
         self.non_rgb_input_img: np.ndarray = url_to_img(self.non_rgb_input_url)
 
+        self.dummy_video_id = "dummy_video_id"
+        self.dummy_keyframe_id = "dummy_keyframe_id"
+
         self.epsilon: float = 0.0001
-        self.faced_detector: ImageFaceDetector = FacedDetector(minimum_confidence = 0.8, offset_value = 20)
+        self.faced_detector: ImageFaceDetector = FacedDetector(minimum_confidence = 0.9, 
+                                                               offset_value = 20,
+                                                               pad_value=10)
 
     def test_non_rgb_input_status(self):
-        detection_result: FaceDetectionResults = self.faced_detector.detect(self.non_rgb_input_img)
+        keyframe = KeyFrame(self.non_rgb_input_img, self.dummy_video_id)
+        keyframe.keyframe_id = self.dummy_keyframe_id
+        detection_result: FaceDetectionResults = self.faced_detector.detect(keyframe)
         expected_status: FaceDetectionStatus = FaceDetectionStatus.FAIL_NON_RGB_INPUT
         self.assertEqual(detection_result.status, expected_status)
 
     def test_non_rgb_input_bboxes(self):
-        detection_result: FaceDetectionResults = self.faced_detector.detect(self.non_rgb_input_img)
+        keyframe = KeyFrame(self.non_rgb_input_img, self.dummy_video_id)
+        keyframe.keyframe_id = self.dummy_keyframe_id
+        detection_result: FaceDetectionResults = self.faced_detector.detect(keyframe)
         expected_detected_faces = None
         self.assertEqual(detection_result.detected_faces, expected_detected_faces)
 
-    # def test_non_equal_dims_status(self):
-    #     detection_result: FaceDetectionResults = self.faced_detector.detect(self.non_equal_dims_img)
-    #     expected_status: FaceDetectionStatus = FaceDetectionStatus.FAIL_NON_EQUAL_DIMS
-    #     self.assertEqual(detection_result.status, expected_status)
-
-    # def test_non_equal_dims_bboxes(self):
-    #     detection_result: FaceDetectionResults = self.faced_detector.detect(self.non_equal_dims_img)
-    #     expected_detected_faces = None
-    #     self.assertEqual(detection_result.detected_faces, expected_detected_faces)
-
     def test_valid_input_status(self):
-        detection_result: FaceDetectionResults = self.faced_detector.detect(self.valid_input_img)
+        keyframe = KeyFrame(self.valid_input_img, self.dummy_video_id)
+        keyframe.keyframe_id = self.dummy_keyframe_id
+        detection_result: FaceDetectionResults = self.faced_detector.detect(keyframe)
         expected_status: FaceDetectionStatus = FaceDetectionStatus.SUCCESS
         self.assertEqual(detection_result.status, expected_status)
     
     def test_valid_input_bboxes(self):
-        detection_result: FaceDetectionResults = self.faced_detector.detect(self.valid_input_img)
+        keyframe = KeyFrame(self.valid_input_img, self.dummy_video_id)
+        keyframe.keyframe_id = self.dummy_keyframe_id
+        detection_result: FaceDetectionResults = self.faced_detector.detect(keyframe)
 
-        expected_bboxes: List[BoundingBox] = [BoundingBox((76, 144, 154, 230), 0.99901056),
-                                              BoundingBox((177, 181, 257, 263), 0.99876785),
-                                              BoundingBox((281, 193, 353, 271), 0.99876535),
-                                              BoundingBox((357, 175, 427, 259), 0.9876309),
-                                              BoundingBox((474, 175, 552, 255), 0.9892281)]
+        expected_bboxes: List[BoundingBox] = [BoundingBox((84, 154, 162, 238), 0.9987294),
+                                              BoundingBox((186, 187, 268, 271), 0.9990884),
+                                              BoundingBox((291, 202, 363, 282), 0.9980178),
+                                              BoundingBox((374, 186, 446, 272), 0.99325585),
+                                              BoundingBox((485, 183, 561, 265), 0.9943262)]
 
         self.assertEqual(len(expected_bboxes), len(detection_result.detected_faces))
                                               
@@ -70,13 +72,15 @@ class TestFacedDetector(unittest.TestCase):
 
 
     def test_valid_input_cropped_faces(self):
-        detection_result: FaceDetectionResults = self.faced_detector.detect(self.valid_input_img)
+        keyframe = KeyFrame(self.valid_input_img, self.dummy_video_id)
+        keyframe.keyframe_id = self.dummy_keyframe_id
+        detection_result: FaceDetectionResults = self.faced_detector.detect(keyframe)
 
-        expected_bboxes: List[BoundingBox] = [BoundingBox((76, 144, 154, 230), 0.99901056),
-                                              BoundingBox((177, 181, 257, 263), 0.99876785),
-                                              BoundingBox((281, 193, 353, 271), 0.99876535),
-                                              BoundingBox((357, 175, 427, 259), 0.9876309),
-                                              BoundingBox((474, 175, 552, 255), 0.9892281)]
+        expected_bboxes: List[BoundingBox] = [BoundingBox((84, 154, 162, 238), 0.9987294),
+                                              BoundingBox((186, 187, 268, 271), 0.9990884),
+                                              BoundingBox((291, 202, 363, 282), 0.9980178),
+                                              BoundingBox((374, 186, 446, 272), 0.99325585),
+                                              BoundingBox((485, 183, 561, 265), 0.9943262)]
         
         def get_shape(bbox: BoundingBox) -> Tuple[(int, int, int)]:
             (x_upperleft, y_upperleft, x_lowerright, y_lowerright) = bbox.coordinates

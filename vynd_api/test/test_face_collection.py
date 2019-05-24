@@ -16,8 +16,8 @@ class TestFaceCollection(unittest.TestCase):
       features = np.random.uniform(low=0.5, high=10, size=(5,))
       self.face_collection.insert_face(
          features=json.dumps(features, cls=numpy_encoder.NumpyEncoder),
-         confidence=0.77,
-         video_id=123
+         cosine_similarity_distance=0.3,
+         euclidean_distance=0.7
       )
       
 

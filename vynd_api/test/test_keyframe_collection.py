@@ -1,8 +1,11 @@
+
 from typing import List
 
+from ..data import CLIENT
+from ..data.video_collection import VideoCollection
 from ..data.keyframe_collection import KeyFrameCollection
 from ..entities.video import Video
-from ..entities.image import KeyFrame
+from ..entities.keyframe import KeyFrame
 from .test_utils import get_img_from_filename
 
 import numpy as np
@@ -11,16 +14,30 @@ import unittest
 class TestKeyFrameCollection(unittest.TestCase):
 
     def setUp(self):
-        img = get_img_from_filename('resources/faced.jpg')
-        self.keyframe = KeyFrame(img)
-        self.keyframe_collection = KeyFrameCollection()
+        self.video_collection = VideoCollection(collection=CLIENT.vynd_db_test.video_collection)
+        self.keyframe_collection = KeyFrameCollection(collection=CLIENT.vynd_db_test.keyframe_collection)
 
     def test_keyframe_collection(self):
-        video_id = "dummy_id"
-        keyframe_id = self.keyframe_collection.insert_keyframe(video_id = video_id, 
-                                                               order_in_time = 1, 
-                                                               key_frame = self.keyframe)
-        self.assertEqual(len(keyframe_id), 24)                                                       
+        video_id = self.video_collection.insert_new_video(Video(key_frames=[]))
+
+        kf_image = np.random.rand(10, 10, 3)
+        keyframe_id = self.keyframe_collection.insert_new_keyframe(KeyFrame(video_id=video_id, 
+                                                                            keyframe_image=kf_image))       
+
+        self.assertTrue(self.video_collection.add_keyframe(video_id, keyframe_id))
+
+        faces = ["f1", "f2", "f3", "f4", "f1", "f2"]
+
+        for f_id in faces:
+            result = self.keyframe_collection.add_face(keyframe_id=keyframe_id, 
+                                                       face_id=f_id)
+            self.assertTrue(result)
+        
+        expected_number_of_faces = 4
+
+        keyframe = self.keyframe_collection.get_keyframe_by_id(keyframe_id=keyframe_id)
+
+        self.assertEqual(len(keyframe["faces_ids"]), expected_number_of_faces)
 
 if __name__ == '__main__':
     unittest.main()

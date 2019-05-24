@@ -1,29 +1,32 @@
-from typing import List
-from .image import KeyFrame
 
-import json
+from typing import List, Set
+from .keyframe import KeyFrame
 
 class Video:
     """
-    video_id: str, 
-    key_frames: List[KeyFrame], 
-    is_processed: bool, 
-    length_in_seconds: int,
-    number_of_keyframes: int
+    Video:
+    - video_id: str
+    - key_frames: List[KeyFrame]
+    - is_processed: bool
     """
     __video_id: str
     __key_frames: List[KeyFrame]
+    __key_frames_ids: List[str]
+    __faces_ids: Set[str]
     __is_processed: bool
-    __length_in_seconds: int
-    __number_of_keyframes: int
-    # todo: add other video properties received from client
+    # TODO: add other video properties received from client
     
-    def __init__(self, length_in_seconds: int, key_frames: List[KeyFrame], video_id: str = None):
-        self.__video_id = video_id
-        self.__length_in_seconds = length_in_seconds
+    def __init__(self, key_frames: List[KeyFrame]):
         self.__key_frames = key_frames
-        self.__number_of_keyframes = len(key_frames)
+        self.__key_frames_ids = []
+        self.__faces_ids = set()
         self.__is_processed = False
+
+    def add_keyframe(self, keyframe_id: str) -> None:
+        self.__key_frames_ids.append(keyframe_id)
+
+    def add_face(self, face_id: str) -> None:
+        self.__faces_ids.add(face_id)
 
     @property
     def video_id(self) -> str:
@@ -36,15 +39,19 @@ class Video:
     @property
     def is_processed(self) -> bool:
         return self.__is_processed
-    
-    @property
-    def length_in_seconds(self) -> int:
-        return self.__length_in_seconds
 
     @property
-    def number_of_keyframes(self) -> int:
-        return len(self.__number_of_keyframes)
+    def key_frames_ids(self) -> List[str]:
+        return self.__key_frames_ids 
+
+    @property
+    def faces_ids(self) -> Set[str]:
+        return self.__faces_ids
+    
+    @video_id.setter
+    def video_id(self, value: str):
+        self.__video_id = value
 
     @is_processed.setter
-    def is_processed(self, value):
+    def is_processed(self, value: bool):
         self.__is_processed = value

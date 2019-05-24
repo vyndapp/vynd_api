@@ -1,44 +1,69 @@
+
 from typing import Optional, List, NamedTuple
+from bson.objectid import ObjectId
+
+import numpy as np
+
+# from ..facerecognition.facematching.face_match import FaceMatch
 from . import CLIENT
-
-import json
-
-## Will not necessarily be used but will act as current Schemas
-
-class Features(NamedTuple):
-    features: List[float]
-    confidence: float
-
-class Face():
-
-    _id: Optional[str]
-    name: Optional[str]
-    feature_grp: List[Features]
-    video_ids: List[str]
-
-    def __init__(self, feature_grp, video_ids, _id=None, name=None):
-        self._id = _id
-        self._name = name
-        self.feature_grp = feature_grp
-        self.video_ids = video_ids
-
-    def to_json(self): 
-        return json.dumps(self.__dict__, indent=4)
-
+from ..utils.numpy_encoder import NumpyEncoder
+from .db_utils import np_to_binary
 
 class FaceCollection:
-    def __init__(self, collection=CLIENT.vynd_db.face_collection):
-        self._collection = collection
+    def __init__(self, collection=CLIENT.vynd_db_test.face_collection):
+        self.__collection = collection
 
-    def insert_face(self, features, confidence, video_id) -> str:
-        return str(self._collection.insert_one(
+    def insert_new_face(self, keyframe_id: str, video_id: str, features: np.ndarray, face_image: np.ndarray, confidence: float) -> str:
+        return str(self.__collection.insert_one(
             {
-                'feature_grp': [
-                   {
-                    'features': features,
-                    'confidence': confidence
-                   }
-                ],
-                'video_ids': [video_id]
+                'keyframe_ids': [keyframe_id],
+                'video_ids': [video_id],
+                'features': np_to_binary(features),
+                'face_images': np_to_binary(face_image),
+                'confidence_score': float(confidence),
+                'is_identified': False,
+                'name': 'unknown'
             }
         ).inserted_id)
+
+    def get_face_by_id(self, _id: str):
+        return self.__collection.find_one({"_id": ObjectId(_id)})
+    
+    def add_keyframe_id(self, face_id: str, keyframe_id: str):
+        result = self.__collection.update_one(filter={'_id': ObjectId(face_id)},
+                                              update={'$push': {'keyframe_ids': keyframe_id}})
+        return (result.matched_count > 0)
+    
+    def add_video_id(self, face_id: str, video_id: str):
+        result = self.__collection.update_one(filter={'_id': ObjectId(face_id)},
+                                              update={'$addToSet': {'video_ids': video_id}})
+        return (result.matched_count > 0)
+
+    def update_confidence_score(self, face_id: str, confidence: float):
+        result = self.__collection.update_one(filter={'_id': ObjectId(face_id)},
+                                              update={'$set': {'confidence_score': float(confidence)}})
+        return (result.matched_count > 0)
+
+    def update_name(self, face_id: str, name: str):
+        result = self.__collection.update_one(filter={'_id': ObjectId(face_id)},
+                                              update={'$set': {'name': name}})
+        return (result.matched_count > 0)
+
+    def update_features(self, face_id: str, features: np.ndarray):
+        result = self.__collection.update_one(filter={'_id': ObjectId(face_id)},
+                                              update={'$set': {'features': np_to_binary(features)}})
+        return (result.matched_count > 0)
+
+    def update_face_image(self, face_id: str, face_image: np.ndarray):
+        result = self.__collection.update_one(filter={'_id': ObjectId(face_id)},
+                                              update={'$set': {'face_images': np_to_binary(face_image)}})
+        return (result.matched_count > 0)
+
+    def get_all_faces(self):
+        return self.__collection.find()
+    
+    def delete_all_faces(self):
+        self.__collection.delete_many({})
+
+# fc = FaceCollection()
+# fc.delete_all_faces()

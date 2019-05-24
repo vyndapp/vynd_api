@@ -13,4 +13,4 @@ class VideoFaceDetector():
 
     def get_detected_results(self, key_frames: List[KeyFrame]) -> List[FaceDetectionResults]:
         """Returns a List of Face Detection result corresponding to each received Key Frame"""
-        return list(map(lambda key_frame: self.__image_face_detector.detect(key_frame.image), key_frames))
+        return list(map(lambda key_frame: self.__image_face_detector.detect(key_frame), key_frames))

@@ -27,14 +27,17 @@ class TestVideoFaceDetector(unittest.TestCase):
         self.epsilon: float = 0.0001
         self.key_frames = []
 
-        self.dummy_video_id = "dummy_video_id" 
+        self.dummy_video_id = "dummy_video_id"
+        self.dummy_keyframe_id = "dummy_keyframe_id"
 
         for img_url in hosted_images:
             key_frame = KeyFrame(url_to_base64(img_url), self.dummy_video_id)
+            key_frame.keyframe_id = self.dummy_keyframe_id
             self.key_frames.append(key_frame)
         
         for img_path in local_images:
             key_frame = KeyFrame(get_img_from_filename(img_path), self.dummy_video_id)
+            key_frame.keyframe_id = self.dummy_keyframe_id
             self.key_frames.append(key_frame)
 
     def test_video_face_detector(self):
@@ -43,8 +46,14 @@ class TestVideoFaceDetector(unittest.TestCase):
                                               BoundingBox((291, 202, 363, 282), 0.9980178),
                                               BoundingBox((374, 186, 446, 272), 0.99325585),
                                               BoundingBox((485, 183, 561, 265), 0.9943262)]
-        expected_results = [FaceDetectionResults(FaceDetectionStatus.FAIL_NON_RGB_INPUT, None),
-                            FaceDetectionResults(FaceDetectionStatus.SUCCESS, expected_bboxes)] 
+        expected_results = [FaceDetectionResults(self.dummy_video_id, 
+                                                 self.dummy_keyframe_id, 
+                                                 FaceDetectionStatus.FAIL_NON_RGB_INPUT, 
+                                                 None),
+                            FaceDetectionResults(self.dummy_video_id,  
+                                                 self.dummy_keyframe_id, 
+                                                 FaceDetectionStatus.SUCCESS, 
+                                                 expected_bboxes)] 
     
         detection_results: List[FaceDetectionResults] = self.video_faced.get_detected_results(key_frames = self.key_frames)
         

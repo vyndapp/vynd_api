@@ -24,7 +24,7 @@ def get_all_local_images(dir: str) -> List[np.ndarray]:
 
     for file in os.listdir(directory):
         filename = os.fsdecode(file)
-        if filename.endswith(".png") or filename.endswith(".jpg") or filename.endswith(".JPG"):
+        if filename.endswith(".png") or filename.endswith(".jpg") or filename.endswith(".JPG") or filename.endswith(".jpeg"):
             local_images.append(get_img_from_filename(dir + filename))
             
     return local_images

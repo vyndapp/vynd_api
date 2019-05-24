@@ -21,8 +21,13 @@ class TestDetectAndCrop(unittest.TestCase):
         self.key_frames: KeyFrame = []
         local_images: List[np.ndarray] = get_all_local_images('resources/')
         
+        dummy_video_id = "dummy_video_id"
+        dummy_keyframe_id = "dummy_keyframe_id"
+        i = 1
         for img in local_images:
-            key_frame = KeyFrame(img)
+            key_frame = KeyFrame(img, dummy_video_id)
+            key_frame.keyframe_id = "dummy_keyframe_id" + str(i)
+            i += 1
             self.key_frames.append(key_frame)
 
     def test_detect_and_crop_from_local(self):

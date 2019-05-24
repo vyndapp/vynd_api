@@ -9,10 +9,11 @@ from .face_detection_results import FaceDetectionResults, DetectedFace
 from .face_detection_status import FaceDetectionStatus
 from .bounding_box import BoundingBox
 from ..test.test_utils import save_img
+from ..entities.keyframe import KeyFrame
 
 class FacedDetector(ImageFaceDetector):
     
-    def __init__(self, minimum_confidence: float = 0.9, offset_value: float = 20, pad_value: float = 10):
+    def __init__(self, minimum_confidence: float = 0.9, offset_value: float = 20, pad_value: int = 10):
         """
             Faced Face Detection Algorithm:
             - A single shot detection algorithm with CPU bound performance based on CNNs
@@ -26,32 +27,37 @@ class FacedDetector(ImageFaceDetector):
         self.__offset_value = offset_value
         self.__pad_value = pad_value
     
-    def detect(self, image: np.ndarray) -> FaceDetectionResults:
+    def detect(self, keyframe: KeyFrame) -> FaceDetectionResults:
         """
             Takes as input an image and returns the Face Detection Results (status, bounding boxes) for that specific image:
             - image: must be a 3d numpy array (RGB image)
         """
-        square_image = self.__rectangle_to_square_image(image)
+        square_image = self.__rectangle_to_square_image(keyframe.image)
         padded_image = self.__pad_image(square_image, self.__pad_value)
+        # save_img('padded/', padded_image, 'padded.png')
 
-        channels: np.int32 = image.shape[2]
+        channels: np.int32 = keyframe.image.shape[2]
         
         if(channels != self.__expected_n_channels):
-            return FaceDetectionResults(status = FaceDetectionStatus.FAIL_NON_RGB_INPUT)
+            return FaceDetectionResults(keyframe_id=keyframe.keyframe_id,
+                                        video_id=keyframe.video_id,
+                                        status=FaceDetectionStatus.FAIL_NON_RGB_INPUT)
         else:
-            predicted_bboxes = self.__faced.predict(frame = padded_image, 
-                                                    thresh = self.__minimum_confidence)
+            predicted_bboxes = self.__faced.predict(frame=padded_image, 
+                                                    thresh=self.__minimum_confidence)
 
             final_bboxes: List[BoundingBox] = self.__preprocess_predicted_bboxes(predicted_bboxes=predicted_bboxes, 
-                                                                                 image_width=image.shape[1], 
-                                                                                 image_height=image.shape[0])
+                                                                                 image_width=keyframe.image.shape[1], 
+                                                                                 image_height=keyframe.image.shape[0])
 
-            face_images: List[np.array] = self.__get_face_images(image=square_image, 
+            face_images: List[np.array] = self.__get_face_images(image=padded_image, 
                                                                  final_bboxes=final_bboxes)
 
             detected_faces: List[DetectedFace] = list(map(lambda bbox, image: DetectedFace(bbox=bbox, image=image), final_bboxes, face_images))
             
             return FaceDetectionResults(detected_faces=detected_faces,
+                                        keyframe_id=keyframe.keyframe_id,
+                                        video_id=keyframe.video_id,
                                         status=FaceDetectionStatus.SUCCESS)
 
     def __pad_image(self, image: np.ndarray, pad_value: int) -> np.ndarray:

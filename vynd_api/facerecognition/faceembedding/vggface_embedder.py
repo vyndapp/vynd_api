@@ -8,6 +8,7 @@ from .image_faces_embedder import ImageFacesEmbedder
 from .face_embedding_results import FaceEmbeddingResults
 from .face_embedding import FaceEmbedding
 from . import DetectedFace
+from .. import FaceDetectionResults
 from .. import vggface2_utlis, image_utils
 
 class VGGFaceEmbedder(ImageFacesEmbedder):
@@ -26,18 +27,20 @@ class VGGFaceEmbedder(ImageFacesEmbedder):
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.__close_session()
 
-    def faces_to_embeddings(self, detected_faces: List[DetectedFace]) -> FaceEmbeddingResults:
+    def faces_to_embeddings(self, detection_results: FaceDetectionResults) -> List[FaceEmbedding]:
         """
         Creates a FaceEmbeddingResults for each keyframe's list of DetectedFaces
         """
-        face_results: List[FaceEmbedding] = []
-        for face in detected_faces:
+        face_embeddings: List[FaceEmbedding] = []
+        for face in detection_results.detected_faces:
             face_embedding = self.__image_to_embedding(face.image)
-            face_results.append(FaceEmbedding(features=face_embedding, 
-                                              face_image=face.image,
-                                              confidence=face.bbox.confidence))
+            face_embeddings.append(FaceEmbedding(features=face_embedding, 
+                                                 keyframe_id=detection_results.keyframe_id,
+                                                 video_id=detection_results.video_id,
+                                                 face_image=face.image,
+                                                 confidence=face.bbox.confidence))
 
-        return FaceEmbeddingResults(faces=face_results)
+        return face_embeddings
 
     def __open_session(self):
         self.__sess = vggface2_utlis.load_model(self.__vggface_path) # load the frozen model into a session object

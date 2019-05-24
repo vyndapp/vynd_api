@@ -18,6 +18,7 @@ from ..facerecognition.facematching.image_faces_matcher import ImageFacesMatcher
 from ..facerecognition.facematching.face_matching_results import FaceMatchingResults
 
 from ..entities.keyframe import KeyFrame
+from ..entities.face import Face
 
 from .test_utils import get_all_local_images, save_img
 
@@ -25,15 +26,17 @@ dummy_video_id = "dummy_video_id"
 dummy_keyframe_id = "dummy_keyframe_id"
 
 # detector construction
-faced: ImageFaceDetector = FacedDetector(minimum_confidence = 0.9, offset_value = 20)
+faced: ImageFaceDetector = FacedDetector(minimum_confidence = 0.9, offset_value = 20, pad_value=5)
 video_faced: VideoFaceDetector = VideoFaceDetector(faced)
 
 # get keyframes
 key_frames: KeyFrame = []
 local_images: List[np.ndarray] = get_all_local_images('resources/')
+i = 1
 for img in local_images:
     key_frame = KeyFrame(img, video_id=dummy_video_id)
-    key_frame.keyframe_id = dummy_keyframe_id
+    key_frame.keyframe_id = dummy_keyframe_id + str(i)
+    i += 1
     key_frames.append(key_frame)
 
 # detection phase
@@ -46,13 +49,12 @@ for i in range(len(detection_results)):
 print('done with detection')
 
 # video recognizer construction
-vggface = VGGFaceEmbedder()
-video_face_recognizer = VideoFaceRecognizer(image_faces_embedder=vggface)
+vgg_face = VGGFaceEmbedder()
+video_recognizer = VideoFaceRecognizer(vgg_face)
 
-# recognition phase
-embedding_results, matching_results = video_face_recognizer.recognize(detection_results)
+matching_results = video_recognizer.recognize(detection_results)
 
-print('done with embedding and matching')
-
-for i in range(len(embedding_results)):
-    print(len(embedding_results[i].faces), len(matching_results[i].matched_faces))
+for res in matching_results:
+    for face in res.matched_faces:
+        print(face.most_similar_face_name)
+    # print(len(res.matched_faces))

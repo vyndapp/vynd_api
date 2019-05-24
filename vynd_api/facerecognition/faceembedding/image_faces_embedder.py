@@ -3,7 +3,8 @@ from abc import ABC, abstractmethod
 from typing import List
 
 from . import FaceCollection
-from .face_embedding_results import FaceEmbeddingResults
+from .face_embedding import FaceEmbedding
+from .. import FaceDetectionResults
 from . import DetectedFace
 
 class ImageFacesEmbedder(ABC):
@@ -12,5 +13,5 @@ class ImageFacesEmbedder(ABC):
         pass
 
     @abstractmethod
-    def faces_to_embeddings(self, detected_faces: List[DetectedFace]) -> FaceEmbeddingResults:
+    def faces_to_embeddings(self, detection_results: FaceDetectionResults) -> List[FaceEmbedding]:
         pass

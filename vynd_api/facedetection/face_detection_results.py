@@ -25,19 +25,30 @@ class DetectedFace(NamedTuple):
 class FaceDetectionResults:
     """
         The results returned by the Face Detection Module per frame:
+        - video_id: str
         - keyframe_id: str
         - status: an enumerator for the status of the detection
         - detected_faces: a list of detected faces in the processed frame
     """
     
-    def __init__(self, status: FaceDetectionStatus, detected_faces: List[DetectedFace] = None):
-        self.__detected_faces: Optional[List[DetectedFace]] = detected_faces
+    def __init__(self, video_id: str, keyframe_id: str, status: FaceDetectionStatus, detected_faces: List[DetectedFace] = None):
+        self.__video_id = video_id
+        self.__keyframe_id = keyframe_id
+        self.__detected_faces: List[DetectedFace] = detected_faces
         self.__status: FaceDetectionStatus = status
     
     @property
-    def detected_faces(self) -> Optional[List[DetectedFace]]:
+    def detected_faces(self) -> List[DetectedFace]:
         return self.__detected_faces
 
     @property
     def status(self) -> FaceDetectionStatus:
         return self.__status
+
+    @property
+    def keyframe_id(self) -> str:
+        return self.__keyframe_id
+
+    @property
+    def video_id(self) -> str:
+        return self.__video_id

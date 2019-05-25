@@ -21,6 +21,11 @@ class ImageFacesMatcher():
         self.__similarity_threshold = 0.3
 
     def match_faces(self, face_embeddings: List[FaceEmbedding]) -> FaceMatchingResults:
+        """
+        - Matches FaceEmbeddings for a specific KeyFrame with Faces previously stored in DB
+        - If there are faces that are not matched, they are inserted to the DB
+        - Returns: FaceMatchingResults
+        """
         self.__all_faces = self.__face_collection.get_all_faces()
 
         matched_faces: List[FaceMatch] = self.__find_most_similar_face(face_embeddings)
@@ -29,14 +34,18 @@ class ImageFacesMatcher():
         return FaceMatchingResults(matched_faces=matched_faces)
 
     def __update_db(self, face_matches: List[FaceMatch], face_embeddings: List[FaceEmbedding]) -> None:
+        """
+        - Update previously added faces with new features/keyframes/videos
+        - Insert new faces to DB
+        """
         for (face_match, face_embedding) in zip(face_matches, face_embeddings):
             if(face_match.face_match_status == FaceMatchStatus.UNKNOWN_FACE):
                 face_id = self.__face_collection.insert_new_face(keyframe_id=face_embedding.keyframe_id,
                                                                  video_id=face_embedding.video_id,
-                                                                 features=face_match.features,
+                                                                 features=face_embedding.features,
                                                                  face_image=face_embedding.face_image,
                                                                  confidence=face_embedding.confidence)
-                # print('inserted face_id', face_id)
+                face_match.face_id = face_id                                                                 
             else:
                 face = self.__face_collection.get_face_by_id(face_match.most_similar_face_id)
                 # print('face already existed, updating...')
@@ -44,10 +53,11 @@ class ImageFacesMatcher():
                 r5 = self.__face_collection.add_video_id(face_match.most_similar_face_id, face_embedding.video_id)
                 if(face_embedding.confidence > face['confidence_score']):
                     # print('update features, image, confidence', end=' ')
-                    r1 = self.__face_collection.update_features(face_match.most_similar_face_id, face_match.features)
+                    r1 = self.__face_collection.update_features(face_match.most_similar_face_id, face_embedding.features)
                     r2 = self.__face_collection.update_face_image(face_match.most_similar_face_id, face_embedding.face_image)
                     r3 = self.__face_collection.update_confidence_score(face_match.most_similar_face_id, face_embedding.confidence)
                     # print(r1, r2, r3, r4, r5)
+                face_match.face_id = face_match.most_similar_face_id
 
     def __find_most_similar_face(self, face_embeddings: List[FaceEmbedding]) -> List[FaceMatch]:
         face_matches = []
@@ -63,9 +73,9 @@ class ImageFacesMatcher():
                 cosine_similarity_dist = recognition_utils.cosine_similarity_distance(embedding1, 
                                                                                       embedding2)
 
-                if(cosine_similarity_dist <= min_cosine_similarity_distance):
+                if(cosine_similarity_dist < min_cosine_similarity_distance):
                     min_cosine_similarity_distance = cosine_similarity_dist
-                    most_similar_id = face['_id']
+                    most_similar_id = str(face['_id'])
                     most_similar_name = face['name']
 
             # print(face_embedding.keyframe_id, most_similar_id, min_cosine_similarity_distance)

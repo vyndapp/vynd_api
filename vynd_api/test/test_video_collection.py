@@ -3,6 +3,8 @@ from ..data import CLIENT
 from ..data.video_collection import VideoCollection
 from ..entities.video import Video
 
+from pymongo.results import DeleteResult
+
 import unittest
 
 class TestVideoCollection(unittest.TestCase):
@@ -11,7 +13,7 @@ class TestVideoCollection(unittest.TestCase):
         self.video_collection = VideoCollection(collection=CLIENT.vynd_db_test.video_collection)
 
     def test_video_collection(self):
-        video_id = self.video_collection.insert_new_video(Video(key_frames = []))
+        video_id = self.video_collection.insert_new_video()
         
         keyframes = ["kf1", "kf2", "kf3", "kf4"]
 
@@ -31,6 +33,9 @@ class TestVideoCollection(unittest.TestCase):
         video = self.video_collection.get_video_by_id(video_id)
         self.assertEqual(len(video["keyframes_ids"]), expected_number_of_keyframes)
         self.assertEqual(len(video["faces_ids"]), expected_number_of_faces)
+
+        delete_result: DeleteResult = self.video_collection.delete_video(video_id=video_id)
+        self.assertEqual(delete_result.deleted_count, 1)
 
 if __name__ == '__main__':
     unittest.main()

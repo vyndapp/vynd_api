@@ -13,7 +13,8 @@ from .. import vggface2_utlis, image_utils
 
 class VGGFaceEmbedder(ImageFacesEmbedder):
     """
-    Generates FaceEmbedding for each DetectedFace in a specific KeyFrame
+    - Generates FaceEmbedding for each DetectedFace in a specific KeyFrame
+    - Must be using 'with' clause
     """
     
     def __init__(self):

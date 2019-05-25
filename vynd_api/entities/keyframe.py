@@ -16,6 +16,7 @@ class KeyFrame:
     - faces_ids: Set[str]
     - timestamp: Optional[int]
     - image: np.ndarray
+    - json_image: str
     """
     __keyframe_id: str
     __video_id: str
@@ -23,8 +24,12 @@ class KeyFrame:
     __timestamp: Optional[int]
 
 # TODO: video_id must be a mandatory property
-    def __init__(self, keyframe_image, video_id: str, timestamp: Optional[int]=0):
-        self.__video_id = video_id
+    def __init__(self, keyframe_image, timestamp: Optional[int]=0):
+        """
+        Params:
+        - keyframe_image: numpy.ndarray | bytes
+        - timestamps: Optional[int]=0
+        """
         self.__timestamp = timestamp
         self.__image = self.__process_keyframe_image(keyframe_image)
         self.__json_image = self.__save_json_image(self.__image)
@@ -74,3 +79,7 @@ class KeyFrame:
     @keyframe_id.setter
     def keyframe_id(self, value):
         self.__keyframe_id = value
+
+    @video_id.setter
+    def video_id(self, value):
+        self.__video_id = value

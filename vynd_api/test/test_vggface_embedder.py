@@ -23,7 +23,8 @@ class TestVGGFaceRecognizer(unittest.TestCase):
                                                       pad_value=10)
 
         img_path: str = 'resources/faced.jpg'
-        self.keyframe = KeyFrame(get_img_from_filename(img_path), "dummy_video_id")
+        self.keyframe = KeyFrame(get_img_from_filename(img_path))
+        self.keyframe.video_id = "dummy_video_id"
         self.keyframe.keyframe_id = "dummy_keyframe_id"
 
         self.epsilon: float = 0.0001

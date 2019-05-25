@@ -29,28 +29,32 @@ class TestFacedDetector(unittest.TestCase):
                                                                pad_value=10)
 
     def test_non_rgb_input_status(self):
-        keyframe = KeyFrame(self.non_rgb_input_img, self.dummy_video_id)
+        keyframe = KeyFrame(self.non_rgb_input_img)
+        keyframe.video_id = self.dummy_video_id
         keyframe.keyframe_id = self.dummy_keyframe_id
         detection_result: FaceDetectionResults = self.faced_detector.detect(keyframe)
         expected_status: FaceDetectionStatus = FaceDetectionStatus.FAIL_NON_RGB_INPUT
         self.assertEqual(detection_result.status, expected_status)
 
     def test_non_rgb_input_bboxes(self):
-        keyframe = KeyFrame(self.non_rgb_input_img, self.dummy_video_id)
+        keyframe = KeyFrame(self.non_rgb_input_img)
+        keyframe.video_id = self.dummy_video_id
         keyframe.keyframe_id = self.dummy_keyframe_id
         detection_result: FaceDetectionResults = self.faced_detector.detect(keyframe)
         expected_detected_faces = None
         self.assertEqual(detection_result.detected_faces, expected_detected_faces)
 
     def test_valid_input_status(self):
-        keyframe = KeyFrame(self.valid_input_img, self.dummy_video_id)
+        keyframe = KeyFrame(self.valid_input_img)
+        keyframe.video_id = self.dummy_video_id
         keyframe.keyframe_id = self.dummy_keyframe_id
         detection_result: FaceDetectionResults = self.faced_detector.detect(keyframe)
         expected_status: FaceDetectionStatus = FaceDetectionStatus.SUCCESS
         self.assertEqual(detection_result.status, expected_status)
     
     def test_valid_input_bboxes(self):
-        keyframe = KeyFrame(self.valid_input_img, self.dummy_video_id)
+        keyframe = KeyFrame(self.valid_input_img)
+        keyframe.video_id = self.dummy_video_id
         keyframe.keyframe_id = self.dummy_keyframe_id
         detection_result: FaceDetectionResults = self.faced_detector.detect(keyframe)
 
@@ -72,7 +76,8 @@ class TestFacedDetector(unittest.TestCase):
 
 
     def test_valid_input_cropped_faces(self):
-        keyframe = KeyFrame(self.valid_input_img, self.dummy_video_id)
+        keyframe = KeyFrame(self.valid_input_img)
+        keyframe.video_id = self.dummy_video_id
         keyframe.keyframe_id = self.dummy_keyframe_id
         detection_result: FaceDetectionResults = self.faced_detector.detect(keyframe)
 

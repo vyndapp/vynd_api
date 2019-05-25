@@ -31,12 +31,14 @@ class TestVideoFaceDetector(unittest.TestCase):
         self.dummy_keyframe_id = "dummy_keyframe_id"
 
         for img_url in hosted_images:
-            key_frame = KeyFrame(url_to_base64(img_url), self.dummy_video_id)
+            key_frame = KeyFrame(url_to_base64(img_url))
+            key_frame.video_id = self.dummy_video_id
             key_frame.keyframe_id = self.dummy_keyframe_id
             self.key_frames.append(key_frame)
         
         for img_path in local_images:
-            key_frame = KeyFrame(get_img_from_filename(img_path), self.dummy_video_id)
+            key_frame = KeyFrame(get_img_from_filename(img_path))
+            key_frame.video_id = self.dummy_video_id
             key_frame.keyframe_id = self.dummy_keyframe_id
             self.key_frames.append(key_frame)
 

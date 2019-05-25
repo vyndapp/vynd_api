@@ -29,7 +29,7 @@ class FacedDetector(ImageFaceDetector):
     
     def detect(self, keyframe: KeyFrame) -> FaceDetectionResults:
         """
-            Takes as input an image and returns the Face Detection Results (status, bounding boxes) for that specific image:
+            Takes as input a KeyFrame entity and returns the FaceDetectionResults (status, bounding boxes) for that specific image:
             - image: must be a 3d numpy array (RGB image)
         """
         square_image = self.__rectangle_to_square_image(keyframe.image)
@@ -61,12 +61,18 @@ class FacedDetector(ImageFaceDetector):
                                         status=FaceDetectionStatus.SUCCESS)
 
     def __pad_image(self, image: np.ndarray, pad_value: int) -> np.ndarray:
+        """
+        Padds the input image with the specified value with a constant value=255 in the width and height only.
+        """
         return np.pad(image, 
                       ((pad_value, pad_value), (pad_value, pad_value), (0, 0)), 
                       mode='constant', 
                       constant_values=255)
 
     def __rectangle_to_square_image(self, image: np.ndarray) -> np.ndarray:
+        """
+        Transforms the input image to a sqaure-shaped image
+        """
         image_width, image_height = image.shape[1], image.shape[0]
         if(image_height == image_width):
             return image

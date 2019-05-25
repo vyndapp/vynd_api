@@ -15,12 +15,14 @@ class TestFaceCollection(unittest.TestCase):
    def test_insert_face(self):
       features = np.random.uniform(low=0.5, high=10, size=(512,))
       face = np.random.uniform(low=0.5, high=10, size=(10, 10))
-      self.face_collection.insert_new_face(
+      face_id = self.face_collection.insert_new_face(
          keyframe_id="dummy_keyframe_id",
          video_id="dummy_video_id",
-         features=json.dumps(features, cls=numpy_encoder.NumpyEncoder),
+         features=features,
          face_image=face,
          confidence=0.9
       )
+      delete_face_result = self.face_collection.delete_face(face_id)
+      self.assertEqual(delete_face_result.deleted_count, 1)
       
 

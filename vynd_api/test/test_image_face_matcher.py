@@ -25,7 +25,8 @@ class TestImageFaceMatcher(unittest.TestCase):
         self.matcher: ImageFacesMatcher = ImageFacesMatcher()                                                 
 
         img_path: str = 'resources/zuma.jpg'
-        self.keyframe = KeyFrame(get_img_from_filename(img_path), "dummy_video_id")
+        self.keyframe = KeyFrame(get_img_from_filename(img_path))
+        self.keyframe.video_id = "dummy_video_id"
         self.keyframe.keyframe_id = "dummy_keyframe_id"
 
         self.epsilon: float = 0.0001

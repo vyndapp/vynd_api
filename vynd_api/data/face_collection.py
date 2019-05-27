@@ -2,13 +2,18 @@
 from typing import Optional, List, NamedTuple
 from bson.objectid import ObjectId
 from pymongo.results import DeleteResult
+from PIL import Image
+from io import BytesIO
 
+import base64
 import numpy as np
+import bson
 
 # from ..facerecognition.facematching.face_match import FaceMatch
 from . import CLIENT
 from ..utils.numpy_encoder import NumpyEncoder
-from .db_utils import np_to_binary
+from ..utils.image_utils import rgb_to_base64
+from .db_utils import np_to_binary, binary_to_np, binary_to_b64
 
 class FaceCollection:
     def __init__(self, collection=CLIENT.vynd_db_test.face_collection):
@@ -25,6 +30,7 @@ class FaceCollection:
         Returns:
         - inserted_face_id: str
         """
+        # TODO: change face_images -> face_image
         return str(self.__collection.insert_one(
             {
                 'keyframe_ids': [keyframe_id],
@@ -33,7 +39,7 @@ class FaceCollection:
                 'face_images': np_to_binary(face_image),
                 'confidence_score': float(confidence),
                 'is_identified': False,
-                'name': 'unknown'
+                'name': None
             }
         ).inserted_id)
 
@@ -45,6 +51,13 @@ class FaceCollection:
         - face_entity: dict
         """
         return self.__collection.find_one({"_id": ObjectId(face_id)})
+
+    def get_faces_info(self):
+        faces = list(self.__collection.find(projection={'_id': True, 'name': True, 'face_images': True}))
+        for face in faces:
+            face['_id'] = str(face['_id'])
+            face['face_images'] = str(binary_to_b64(face['face_images']))
+        return faces
     
     def add_keyframe_id(self, face_id: str, keyframe_id: str):
         """

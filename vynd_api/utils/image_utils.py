@@ -13,5 +13,8 @@ def base64_to_rgb(base64_text):
     pil_img = Image.open(BytesIO(img))
     return np.asarray(pil_img)
 
+def rgb_to_base64(image):
+    return str(base64.b64encode(image))
+
 def resize_image(image, new_shape=(96, 96)):
     return cv2.resize(image, new_shape) 

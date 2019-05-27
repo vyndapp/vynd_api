@@ -10,7 +10,7 @@ from . import FaceEmbedding
 from .face_matching_results import FaceMatchingResults
 from .face_match_status import FaceMatchStatus
 from .face_match import FaceMatch
-from . import recognition_utils
+from . import recognition_utils, image_utils
 from . import numpy_encoder
 from . import db_utils
 
@@ -19,6 +19,7 @@ class ImageFacesMatcher():
     def __init__(self, face_collection: Collection=CLIENT.vynd_db_test.face_collection):
         self.__face_collection = FaceCollection(face_collection)
         self.__similarity_threshold = 0.3
+        self.__default_face_dims = (100, 100)
 
     def match_faces(self, face_embeddings: List[FaceEmbedding]) -> FaceMatchingResults:
         """
@@ -40,10 +41,11 @@ class ImageFacesMatcher():
         """
         for (face_match, face_embedding) in zip(face_matches, face_embeddings):
             if(face_match.face_match_status == FaceMatchStatus.UNKNOWN_FACE):
+                resized_face_image = image_utils.resize_image(face_embedding.face_image, new_shape=(self.__default_face_dims))
                 face_id = self.__face_collection.insert_new_face(keyframe_id=face_embedding.keyframe_id,
                                                                  video_id=face_embedding.video_id,
                                                                  features=face_embedding.features,
-                                                                 face_image=face_embedding.face_image,
+                                                                 face_image=resized_face_image,
                                                                  confidence=face_embedding.confidence)
                 face_match.face_id = face_id                                                                 
             else:

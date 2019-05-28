@@ -1,11 +1,13 @@
-from typing import List, Collection
+from typing import List
+
+import numpy as np
+from bson import ObjectId
 
 from .video_processing_results import VideoProcessingResult
 from ..entities.video import Video
 from ..entities.user import User
 from ..facedetection.faced import FacedDetector
 from ..facedetection.image_face_detector import ImageFaceDetector
-from ..facedetection.video_face_detector import VideoFaceDetector
 from ..facedetection.face_detection_results import FaceDetectionResults
 
 from ..facerecognition.faceembedding.image_faces_embedder import ImageFacesEmbedder
@@ -31,13 +33,10 @@ class VideoProcessor:
     __video: Video
     __user: User
 
-    def __init__(self, video: Video, 
-                       user: User, 
-                       face_collection: Collection=CLIENT.vynd_db_test.face_collection, 
-                       keyframe_collection: Collection=CLIENT.vynd_db_test.keyframe_collection,
-                       video_collection: Collection=CLIENT.vynd_db_test.video_collection):
-        self.__user = user
-        self.__video = video
+    def __init__(self,
+                 face_collection=CLIENT.vynd_db_test.face_collection, 
+                 keyframe_collection=CLIENT.vynd_db_test.keyframe_collection,
+                 video_collection=CLIENT.vynd_db_test.video_collection):
         self.__face_collection = FaceCollection(face_collection)
         self.__keyframe_collection = KeyFrameCollection(keyframe_collection)
         self.__video_collection = VideoCollection(video_collection)
@@ -45,10 +44,13 @@ class VideoProcessor:
         self.__image_face_embedder: ImageFacesEmbedder = VGGFaceEmbedder()
         self.__image_face_matcher: ImageFacesMatcher = ImageFacesMatcher(face_collection=face_collection)
 
-    def process(self) -> VideoProcessingResult:
+    def is_invalid_id(self, video_id: str) -> bool:
+        return not ObjectId.is_valid(video_id) or \
+            self.__video_collection.get_video_by_id(video_id) is None
+
+    def process(self, video_id: str, key_frames: List[np.array]) -> VideoProcessingResult:
         # todo: Create a VideoDetector instance for a specific Image Detection Algo. Factory?
         """
-        - Creates new entity for video in DB, and stores video_id for later use
         - Creates new entity for each keyframe found in video in DB
         - Matched faces found in keyframe with faces in DB
         - Insert faces that are not matched
@@ -58,16 +60,18 @@ class VideoProcessor:
         - Add video_id in a List() in face entity
         - Returns: VideoProcessingResult
         """
-        video_id = self.__video_collection.insert_new_video()
-        for keyframe in self.__video.key_frames:
+
+        if self.is_invalid_id(video_id):
+            return VideoProcessingResult.INVALID_VIDEO_ID
+
+        for keyframe in key_frames:
             keyframe_id = self.__keyframe_collection.insert_new_keyframe(video_id=video_id)
-            self.__video_collection.add_keyframe(video_id=video_id, 
+            self.__video_collection.add_keyframe(video_id=video_id,
                                                  keyframe_id=keyframe_id)
             keyframe.video_id = video_id
             keyframe.keyframe_id = keyframe_id
             face_detection_result: FaceDetectionResults = self.__image_face_detector.detect(keyframe)
-            with self.__image_face_embedder:
-                face_embedding_result: FaceEmbeddingResults = self.__image_face_embedder.faces_to_embeddings(face_detection_result)
+            face_embedding_result: FaceEmbeddingResults = self.__image_face_embedder.faces_to_embeddings(face_detection_result)
             face_matching_results: FaceMatchingResults = self.__image_face_matcher.match_faces(face_embedding_result)
             
             for face in face_matching_results.matched_faces:

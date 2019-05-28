@@ -33,6 +33,10 @@ class VideoCollection:
         return list(self.__collection.find(filter={'_id': ObjectId(video_id)}, 
                     projection={'faces_ids': True, '_id': False}))
 
+    def get_processed_videos(self):
+        return list(self.__collection.find(filter={'is_processed': True},
+                                           projection={'_id': True}))
+
     def add_keyframe(self, video_id: str, keyframe_id: str):
         """
         Params:

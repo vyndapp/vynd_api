@@ -61,7 +61,7 @@ class FaceCollection:
 
     def get_videos_by_name(self, name: str):
         return list(self.__collection.find(filter={'$text': {"$search": name}},
-                                           projection={'video_ids': True}))
+                                           projection={'video_ids': True, '_id': True}))
 
     def get_faces_info(self):
         faces = list(self.__collection.find(projection={'_id': True, 'name': True, 'face_images': True}))

@@ -25,7 +25,7 @@ class GetVideosOfFace(Resource):
          result = self.face_collection.get_videos_by_name(name)
          for face in result:
             face['_id'] = str(face['_id'])
-         return jsonify(video_ids=result)
+         return jsonify(videos=result)
       else: 
          return jsonify(error="")
 

@@ -7,6 +7,7 @@ from .resources.get_face_info import GetFaces
 from .resources.get_faces_in_video import GetFacesInVideo
 from .resources.get_videos_of_face import GetVideosOfFace
 from .resources.add_new_video import AddNewVideo
+from .resources.get_processed_videos import GetProcessedVideos
 
 api_bp = Blueprint('api', __name__)
 api = Api(api_bp)
@@ -16,3 +17,4 @@ api.add_resource(GetFaces, '/get-faces')
 api.add_resource(GetFacesInVideo, '/get-faces-in-video')
 api.add_resource(GetVideosOfFace, '/get-videos-of-face')
 api.add_resource(AddNewVideo, '/add-new-video')
+api.add_resource(GetProcessedVideos, '/get-processed-videos')

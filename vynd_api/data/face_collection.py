@@ -52,6 +52,10 @@ class FaceCollection:
         """
         return self.__collection.find_one({"_id": ObjectId(face_id)})
 
+    def get_videos_by_id(self, face_id: str):
+        return list(self.__collection.find(filter={'_id': ObjectId(face_id)},
+            projection={'video_ids': True, '_id': False}))
+
     def get_faces_info(self):
         faces = list(self.__collection.find(projection={'_id': True, 'name': True, 'face_images': True}))
         for face in faces:

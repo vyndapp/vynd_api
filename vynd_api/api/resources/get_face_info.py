@@ -3,7 +3,6 @@ from flask_restful import Resource, request
 from flask import jsonify
 
 from .. import CLIENT, FaceCollection
-
 import numpy as np
 import json
 

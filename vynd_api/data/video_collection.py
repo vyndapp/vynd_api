@@ -29,6 +29,10 @@ class VideoCollection:
         """
         return self.__collection.find_one({'_id': ObjectId(video_id)})
 
+    def get_faces(self, video_id: str):
+        return list(self.__collection.find(filter={'_id': ObjectId(video_id)}, 
+                    projection={'faces_ids': True, '_id': False}))
+
     def add_keyframe(self, video_id: str, keyframe_id: str):
         """
         Params:

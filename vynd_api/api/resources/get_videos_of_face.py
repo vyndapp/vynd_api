@@ -20,6 +20,12 @@ class GetVideosOfFace(Resource):
             return jsonify(video_ids=result[0]['video_ids'])
          except:
             return jsonify(error="invalid id")
+      elif 'name' in args:
+         name = args['name']
+         result = self.face_collection.get_videos_by_name(name)
+         for face in result:
+            face['_id'] = str(face['_id'])
+         return jsonify(video_ids=result)
       else: 
          return jsonify(error="")
 

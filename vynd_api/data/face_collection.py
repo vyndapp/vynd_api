@@ -19,6 +19,9 @@ class FaceCollection:
     def __init__(self, collection=CLIENT.vynd_db_test.face_collection):
         self.__collection = collection
 
+    # def create_index(self, field_name: str):
+    #     self.__collection.create_index({field_name: "text"})
+
     def insert_new_face(self, keyframe_id: str, video_id: str, features: np.ndarray, face_image: np.ndarray, confidence: float) -> str:
         """
         Params:
@@ -55,6 +58,10 @@ class FaceCollection:
     def get_videos_by_id(self, face_id: str):
         return list(self.__collection.find(filter={'_id': ObjectId(face_id)},
             projection={'video_ids': True, '_id': False}))
+
+    def get_videos_by_name(self, name: str):
+        return list(self.__collection.find(filter={'$text': {"$search": name}},
+                                           projection={'video_ids': True}))
 
     def get_faces_info(self):
         faces = list(self.__collection.find(projection={'_id': True, 'name': True, 'face_images': True}))

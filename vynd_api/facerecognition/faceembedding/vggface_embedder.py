@@ -20,12 +20,9 @@ class VGGFaceEmbedder(ImageFacesEmbedder):
     def __init__(self):
         self.__vggface_path = '../models/vggface2/vggface2.pb' # frozen graph path
         self.__default_dims = (160, 160) # input dimensions for the model
-
-    def __enter__(self):
         self.__open_session()
-        return self
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
+    def __del__(self):
         self.__close_session()
 
     def faces_to_embeddings(self, detection_results: FaceDetectionResults) -> List[FaceEmbedding]:

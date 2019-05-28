@@ -18,9 +18,8 @@ class VideoFaceRecognizer():
         self.__image_faces_matcher: ImageFacesMatcher = ImageFacesMatcher(face_collection)
 
     def recognize(self, face_detection_results: List[FaceDetectionResults]) -> List[FaceMatch]:
-        with self.__image_faces_embedder as embedder:
-            embedding_results = list(map(
-                                lambda detection_result: embedder.faces_to_embeddings(detection_result),
+        embedding_results = list(map(
+                                lambda detection_result: self.__image_faces_embedder.faces_to_embeddings(detection_result),
                                 face_detection_results))
         
         matching_results = list(map(lambda embedding_result: self.__image_faces_matcher.match_faces(embedding_result), embedding_results))

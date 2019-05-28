@@ -33,8 +33,7 @@ class TestImageFaceMatcher(unittest.TestCase):
     
     def test_image_face_matcher(self):
         detection_result: FaceDetectionResults = self.faced.detect(keyframe=self.keyframe)
-        with self.vggface:
-            embedding_results: List[FaceEmbedding] = self.vggface.faces_to_embeddings(detection_results=detection_result)
+        embedding_results: List[FaceEmbedding] = self.vggface.faces_to_embeddings(detection_results=detection_result)
         
         names = ['hazem']
 

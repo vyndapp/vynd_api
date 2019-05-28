@@ -31,8 +31,7 @@ class TestVGGFaceRecognizer(unittest.TestCase):
     
     def test_vggface_recognizer(self):
         detection_result: FaceDetectionResults = self.faced.detect(keyframe=self.keyframe)
-        with self.vggface:
-            embedding_result: List[FaceEmbedding] = self.vggface.faces_to_embeddings(detection_results=detection_result)
+        embedding_result: List[FaceEmbedding] = self.vggface.faces_to_embeddings(detection_results=detection_result)
         
         expected_number_of_faces = 5
         expected_number_of_features = 512

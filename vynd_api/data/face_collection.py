@@ -152,7 +152,7 @@ class FaceCollection:
         return self.__collection.delete_one(filter={'_id': ObjectId(face_id)})
 
     def get_all_faces(self):
-        return self.__collection.find()
+        return self.__collection.find({})
     
     def delete_all_faces(self):
         """
@@ -161,6 +161,9 @@ class FaceCollection:
         - pymongo.results.DeleteResult
         """
         return self.__collection.delete_many({})
+
+    def get_number_of_records(self):
+        return self.__collection.count_documents({})
 
 # fc = FaceCollection()
 # fc.delete_all_faces()

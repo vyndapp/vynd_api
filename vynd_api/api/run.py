@@ -16,4 +16,4 @@ def create_app(config_filename):
 if __name__ == "__main__":
     app = create_app("config")
 # host = '0.0.0.0' makes the server visible across the network (Extremly Visible Server)
-    app.run(debug = True, threaded=True)
+    app.run(debug = True, threaded=True, host='127.0.0.5')

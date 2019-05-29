@@ -66,7 +66,10 @@ class KeyFrameCollection:
         return self.__collection.delete_many({})
 
     def get_all_keyframes(self):
-        return self.__collection.find()
+        return self.__collection.find({})
+    
+    def get_number_of_records(self):
+        return self.__collection.count_documents({})
 
 # kfc = KeyFrameCollection()
 # kfc.delete_all_keyframes()

@@ -6,6 +6,7 @@ from bson import ObjectId
 from .video_processing_results import VideoProcessingResult
 from ..entities.video import Video
 from ..entities.user import User
+from ..entities.keyframe import KeyFrame
 from ..facedetection.faced import FacedDetector
 from ..facedetection.image_face_detector import ImageFaceDetector
 from ..facedetection.face_detection_results import FaceDetectionResults
@@ -48,7 +49,7 @@ class VideoProcessor:
         return not ObjectId.is_valid(video_id) or \
             self.__video_collection.get_video_by_id(video_id) is None
 
-    def process(self, video_id: str, key_frames: List[np.array]) -> VideoProcessingResult:
+    def process(self, video_id: str, key_frames: List[KeyFrame]) -> VideoProcessingResult:
         # todo: Create a VideoDetector instance for a specific Image Detection Algo. Factory?
         """
         - Creates new entity for each keyframe found in video in DB

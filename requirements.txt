@@ -1,6 +1,5 @@
 absl-py==0.7.1
 alabaster==0.7.12
-align==0.0.5
 aniso8601==6.0.0
 asn1crypto==0.24.0
 astor==0.7.1

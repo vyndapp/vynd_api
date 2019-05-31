@@ -1,3 +1,8 @@
+import os
 from pymongo import MongoClient
+from dotenv import load_dotenv
 
-CLIENT: MongoClient = MongoClient("mongodb+srv://vynduser:yahyamassoud123@vyndcluster-8swzc.mongodb.net/test?retryWrites=true")
+load_dotenv()
+
+PASSWORD: str = os.environ.get('DATABASE_PASSWORD')
+CLIENT: MongoClient = MongoClient(f"mongodb+srv://vynduser:{PASSWORD}@vyndcluster-8swzc.mongodb.net/test?retryWrites=true")

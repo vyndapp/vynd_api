@@ -1,22 +1,20 @@
 from typing import List
+import json
 
 from flask_restful import Resource, request
 from flask_api import status
 from flask import jsonify, make_response
 
-import numpy as np
-import json
-
-from .. import base64_to_rgb
 from .. import KeyFrame
 from .. import VideoProcessor, VideoProcessingResult
 
 class ProcessKeyFrames(Resource):
 
    def post(self):
-      if 'video_id' in request.get_json() and 'base64_images' in request.get_json():
-         video_id = request.get_json()['video_id']
-         key_frames = json.loads(request.get_json()['base64_images'])
+      if 'video_id' in request.form and 'base64_images' in request.form:
+         video_id = request.form['video_id']
+         key_frames = json.loads(request.form['base64_images'])
+         request.stream.read()
 
          try:
             key_frames = [key_frame.encode() for key_frame in key_frames]
@@ -30,4 +28,5 @@ class ProcessKeyFrames(Resource):
             return make_response(jsonify(result=str(result.SUCCESS)), status.HTTP_200_OK)
          return make_response(jsonify(result=str(result.INVALID_VIDEO_ID)), status.HTTP_400_BAD_REQUEST)
       else:
+         request.stream.read()
          return make_response(jsonify(error="you must send (video_id: str) and (base64_images: List[str])"), status.HTTP_400_BAD_REQUEST)

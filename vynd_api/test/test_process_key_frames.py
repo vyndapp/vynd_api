@@ -21,7 +21,7 @@ from ..data.db_utils import np_to_binary, binary_to_b64
 class TestProcessKeyFrames(unittest.TestCase):
 
     def setUp(self):
-        self.current_host_IP = 'http://127.0.0.5:5000/api'
+        self.current_host_IP = 'https://vynd.herokuapp.com/api/process-keyframes'
 
         self.video_collection = VideoCollection(CLIENT.vynd_db_test.video_collection)
         self.face_collection = FaceCollection(CLIENT.vynd_db_test.face_collection)
@@ -39,7 +39,7 @@ class TestProcessKeyFrames(unittest.TestCase):
         json_data = {"video_id": "invalid_video_id",
                      "base64_images": json.dumps(base64_images)}
         result = self.__make_post_request(json_data)
-        self.assertEqual(result, status.HTTP_400_BAD_REQUEST)   
+        self.assertEqual(result, status.HTTP_400_BAD_REQUEST)  
 
     def test_invalid_keyframes_type(self):
         video_id = self.video_collection.insert_new_video()

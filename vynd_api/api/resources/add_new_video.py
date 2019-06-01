@@ -5,7 +5,7 @@ from flask import jsonify
 from .. import CLIENT, VideoCollection
 
 class AddNewVideo(Resource):
-    
+
     video_collection = VideoCollection(CLIENT.vynd_db_test.video_collection)
 
     def post(self):

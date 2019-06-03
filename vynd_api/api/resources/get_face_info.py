@@ -8,7 +8,7 @@ import json
 
 class GetFaces(Resource):
 
-    face_collection = FaceCollection(CLIENT.vynd_db_test.face_collection)
+    face_collection = FaceCollection()
 
     def get(self):
         faces = self.face_collection.get_faces_info()

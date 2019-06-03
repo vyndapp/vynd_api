@@ -8,7 +8,7 @@ from bson.objectid import ObjectId
 from pymongo.results import DeleteResult
 
 class KeyFrameCollection:
-    def __init__(self, collection=CLIENT.vynd_db_test.keyframe_collection):
+    def __init__(self, collection=CLIENT.vynd_db.keyframe_collection):
         self.__collection = collection
 
     def insert_new_keyframe(self, video_id: str, timestamp: int = 0) -> str:

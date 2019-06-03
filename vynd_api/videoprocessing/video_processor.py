@@ -35,9 +35,9 @@ class VideoProcessor:
     __user: User
 
     def __init__(self,
-                 face_collection=CLIENT.vynd_db_test.face_collection, 
-                 keyframe_collection=CLIENT.vynd_db_test.keyframe_collection,
-                 video_collection=CLIENT.vynd_db_test.video_collection):
+                 face_collection=CLIENT.vynd_db.face_collection, 
+                 keyframe_collection=CLIENT.vynd_db.keyframe_collection,
+                 video_collection=CLIENT.vynd_db.video_collection):
         self.__face_collection = FaceCollection(face_collection)
         self.__keyframe_collection = KeyFrameCollection(keyframe_collection)
         self.__video_collection = VideoCollection(video_collection)

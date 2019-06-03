@@ -9,7 +9,7 @@ import json
 
 class FaceUpdater(Resource):
 
-    face_collection = FaceCollection(CLIENT.vynd_db_test.face_collection)
+    face_collection = FaceCollection()
     
     def post(self):
         face_id = request.form['face_id']

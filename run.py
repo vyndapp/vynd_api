@@ -1,12 +1,17 @@
-from flask import Flask
+
 import os
 
+from flask import Flask
+
+from vynd_api.api import settings
 from vynd_api.api.api_blueprint import api_bp
 
 def create_app(config_filename):
     app = Flask(__name__)
     app.register_blueprint(api_bp, url_prefix='/api')
     return app
+
+settings.init_video_processor()
 	
 # if __name__ == "__main__":
 app = create_app("config")

@@ -7,7 +7,7 @@ import json
 
 class GetVideosOfFace(Resource):
 
-   face_collection = FaceCollection(CLIENT.vynd_db_test.face_collection)
+   face_collection = FaceCollection()
 
    def get(self):
       args = request.args

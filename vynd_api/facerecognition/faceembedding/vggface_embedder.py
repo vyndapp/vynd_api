@@ -1,12 +1,10 @@
+from typing import List
 import numpy as np
 import time
-
-from typing import List
 
 from .image_faces_embedder import ImageFacesEmbedder
 from .face_embedding_results import FaceEmbeddingResults
 from .face_embedding import FaceEmbedding
-from . import DetectedFace
 from .. import FaceDetectionResults
 from .. import vggface2_utlis, image_utils
 
@@ -34,8 +32,7 @@ class VGGFaceEmbedder(ImageFacesEmbedder):
             face_embeddings.append(FaceEmbedding(features=face_embedding, 
                                                  keyframe_id=detection_results.keyframe_id,
                                                  video_id=detection_results.video_id,
-                                                 face_image=face.image,
-                                                 confidence=face.bbox.confidence))
+                                                 face_image=face.image))
 
         return face_embeddings
 

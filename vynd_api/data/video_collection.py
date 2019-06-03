@@ -5,7 +5,7 @@ from pymongo.results import DeleteResult, UpdateResult
 from . import CLIENT
 
 class VideoCollection:
-    def __init__(self, collection=CLIENT.vynd_db_test.video_collection):
+    def __init__(self, collection=CLIENT.vynd_db.video_collection):
         self.__collection = collection
 
     def insert_new_video(self) -> str:

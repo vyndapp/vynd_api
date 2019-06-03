@@ -1,4 +1,5 @@
-from typing import List, NamedTuple, Optional
+from typing import List, Optional
+from dataclasses import dataclass
 
 import numpy as np
 
@@ -6,17 +7,18 @@ from . import CLIENT
 from . import FaceCollection
 from . import FaceEmbedding
 from .face_match_status import FaceMatchStatus
-from ... utils.recognition_utils import cosine_similarity_distance
+from ...utils.recognition_utils import cosine_similarity_distance
 from ..facegrouping.face_grouping import group_faces
 
-class GroupMatch(NamedTuple):
+@dataclass(init=True)
+class GroupMatch():
     face_embeddings: List[FaceEmbedding]
     match_status: FaceMatchStatus
     matched_id: Optional[str]
 
 class ImageFacesMatcher():
 
-    def __init__(self, face_collection=CLIENT.vynd_db_test.face_collection):
+    def __init__(self, face_collection=CLIENT.vynd_db.face_collection):
         self.__face_collection = FaceCollection(face_collection)
         self.__similarity_distance_threshold = 0.3
         self.__default_face_dims = (100, 100)
@@ -27,7 +29,6 @@ class ImageFacesMatcher():
         - If there are faces that are not matched, they are inserted to the DB
         - Returns: FaceMatchingResults
         """
-        ## TODO: get feaures only, not the whole face document
         all_faces = self.__face_collection.get_all_faces_features()
         face_groups: List[List[FaceEmbedding]] = group_faces(face_embeddings, \
          lambda features_a, features_b: cosine_similarity_distance(features_a, features_b) < 0.28)

@@ -11,7 +11,7 @@ colorama==0.4.1
 decorator==4.4.0
 dnspython==1.16.0
 filelock==3.0.10
-https://files.pythonhosted.org/packages/24/ea/81e4fc5b978277899b1c1a63ff358f1f645f9369e59d9b5d9cc1d57c007c/dlib-19.5.1-cp36-cp36m-win_amd64.whl#sha256=7739535b76eb40cbcf49ba98d894894d06ee0b6e8f18a25fef2ab302fd5401c7
+dlib==19.5.1
 git+https://github.com/iitzco/faced.git
 Flask==1.0.3
 Flask-API==1.1

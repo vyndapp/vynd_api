@@ -22,7 +22,7 @@ class FaceCollection:
     # def create_index(self, field_name: str):
     #     self.__collection.create_index({field_name: "text"})
 
-    def insert_new_face(self, keyframe_id: str, video_id: str, features: np.ndarray, face_image: np.ndarray, confidence: float) -> str:
+    def insert_new_face(self, keyframe_id: str, video_id: str, features: np.ndarray, face_image: np.ndarray) -> str:
         """
         Params:
         - keyframe_id: str

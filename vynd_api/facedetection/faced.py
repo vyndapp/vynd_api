@@ -58,7 +58,7 @@ class FacedDetector(ImageFaceDetector):
             aligned_face_images: List[np.array] = self.__align_faces(image=padded_image, 
                                                                      bboxes=final_bboxes)
 
-            detected_faces: List[DetectedFace] = list(map(lambda bbox, image, aligned_image: DetectedFace(bbox=bbox, image=image, aligned_image=aligned_image), final_bboxes, face_images, aligned_face_images))
+            detected_faces: List[DetectedFace] = list(map(lambda image, aligned_image: DetectedFace(image=image, aligned_image=aligned_image), face_images, aligned_face_images))
             
             return FaceDetectionResults(detected_faces=detected_faces,
                                         keyframe_id=keyframe.keyframe_id,

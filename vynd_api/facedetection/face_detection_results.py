@@ -11,11 +11,10 @@ from .face_detection_status import FaceDetectionStatus
 class DetectedFace(NamedTuple):
 
     """
-        - bbox: bounding boxes of face in the original image
         - image: np.array of the cropped face
+        - aligned_image: np.array of aligned cropped face
     """
 
-    bbox: BoundingBox
     image: np.array
     aligned_image: np.array
 

@@ -5,7 +5,7 @@ from .. import CLIENT, VideoCollection
 
 class GetFacesInVideo(Resource):
 
-   video_collection = VideoCollection(CLIENT.vynd_db_test.video_collection)
+   video_collection = VideoCollection()
 
    def extractArgs(self):
       return request.args

@@ -13,7 +13,7 @@ class VideoFaceRecognizer():
     __image_faces_embedder: ImageFacesEmbedder
     __image_faces_matcher: ImageFacesMatcher
 
-    def __init__(self, image_faces_embedder: ImageFacesEmbedder, face_collection: Collection=CLIENT.vynd_db_test.face_collection):
+    def __init__(self, image_faces_embedder: ImageFacesEmbedder, face_collection=CLIENT.vynd_db.face_collection):
         self.__image_faces_embedder = image_faces_embedder
         self.__image_faces_matcher: ImageFacesMatcher = ImageFacesMatcher(face_collection)
 

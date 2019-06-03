@@ -16,7 +16,7 @@ from ..utils.image_utils import rgb_to_base64
 from .db_utils import np_to_binary, binary_to_np, binary_to_b64
 
 class FaceCollection:
-    def __init__(self, collection=CLIENT.vynd_db_test.face_collection):
+    def __init__(self, collection=CLIENT.vynd_db.face_collection):
         self.__collection = collection
 
     # def create_index(self, field_name: str):

@@ -6,7 +6,7 @@ from .. import CLIENT, VideoCollection
 
 class AddNewVideo(Resource):
 
-    video_collection = VideoCollection(CLIENT.vynd_db_test.video_collection)
+    video_collection = VideoCollection()
 
     def post(self):
         video_id = self.video_collection.insert_new_video()

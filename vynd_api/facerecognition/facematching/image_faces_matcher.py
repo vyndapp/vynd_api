@@ -1,5 +1,5 @@
 
-from typing import List, Dict, Collection
+from typing import List, Dict
 
 import numpy as np
 import json
@@ -16,7 +16,7 @@ from . import db_utils
 
 class ImageFacesMatcher():
 
-    def __init__(self, face_collection: Collection=CLIENT.vynd_db_test.face_collection):
+    def __init__(self, face_collection=CLIENT.vynd_db.face_collection):
         self.__face_collection = FaceCollection(face_collection)
         self.__similarity_threshold = 0.3
         self.__default_face_dims = (100, 100)

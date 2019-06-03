@@ -6,7 +6,7 @@ from .. import CLIENT, VideoCollection
 
 class GetProcessedVideos(Resource):
 
-    video_collection = VideoCollection(CLIENT.vynd_db_test.video_collection)
+    video_collection = VideoCollection()
 
     def get(self):
         processed_videos = self.video_collection.get_processed_videos()

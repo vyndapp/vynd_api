@@ -17,10 +17,7 @@ class DetectedFace(NamedTuple):
 
     bbox: BoundingBox
     image: np.array
-    
-    @property
-    def json_image(self):
-        return json.dumps(self.image, cls = numpy_encoder.NumpyEncoder)
+    aligned_image: np.array
 
 class FaceDetectionResults:
     """

@@ -1,6 +1,7 @@
 
 from typing import List, Tuple
 from faced import FaceDetector
+from dlib import rectangle
 
 import numpy as np
 
@@ -8,12 +9,13 @@ from .image_face_detector import ImageFaceDetector
 from .face_detection_results import FaceDetectionResults, DetectedFace
 from .face_detection_status import FaceDetectionStatus
 from .bounding_box import BoundingBox
+from .facealignment.face_alignment import FaceAlignment
 from ..test.test_utils import save_img
 from ..entities.keyframe import KeyFrame
 
 class FacedDetector(ImageFaceDetector):
     
-    def __init__(self, minimum_confidence: float = 0.9, offset_value: float = 20, pad_value: int = 10):
+    def __init__(self, minimum_confidence: float = 0.9, offset_value: float = 5, pad_value: int = 15):
         """
             Faced Face Detection Algorithm:
             - A single shot detection algorithm with CPU bound performance based on CNNs
@@ -26,6 +28,7 @@ class FacedDetector(ImageFaceDetector):
         self.__minimum_confidence = minimum_confidence
         self.__offset_value = offset_value
         self.__pad_value = pad_value
+        self.__face_aligner = FaceAlignment()
     
     def detect(self, keyframe: KeyFrame) -> FaceDetectionResults:
         """
@@ -34,7 +37,6 @@ class FacedDetector(ImageFaceDetector):
         """
         square_image = self.__rectangle_to_square_image(keyframe.image)
         padded_image = self.__pad_image(square_image, self.__pad_value)
-        # save_img('padded/', padded_image, 'padded.png')
 
         channels: np.int32 = keyframe.image.shape[2]
         
@@ -52,8 +54,11 @@ class FacedDetector(ImageFaceDetector):
 
             face_images: List[np.array] = self.__get_face_images(image=padded_image, 
                                                                  final_bboxes=final_bboxes)
+            
+            aligned_face_images: List[np.array] = self.__align_faces(image=padded_image, 
+                                                                     bboxes=final_bboxes)
 
-            detected_faces: List[DetectedFace] = list(map(lambda bbox, image: DetectedFace(bbox=bbox, image=image), final_bboxes, face_images))
+            detected_faces: List[DetectedFace] = list(map(lambda bbox, image, aligned_image: DetectedFace(bbox=bbox, image=image, aligned_image=aligned_image), final_bboxes, face_images, aligned_face_images))
             
             return FaceDetectionResults(detected_faces=detected_faces,
                                         keyframe_id=keyframe.keyframe_id,
@@ -119,3 +124,18 @@ class FacedDetector(ImageFaceDetector):
             (x_upperleft, y_upperleft, x_lowerright, y_lowerright) = bbox.coordinates
             return image[y_upperleft: y_lowerright + 1, x_upperleft:x_lowerright + 1, :]
         return list(map(get_face, final_bboxes))
+    
+    def __align_faces(self, image: np.array, bboxes: List[BoundingBox]) -> List[np.array]:
+        rectangles = self.__bbox_to_rect(image,bboxes=bboxes)
+        return self.__face_aligner.get_aligned_faces(original_image=image,
+                                                     rectangles=rectangles)
+    
+    def __bbox_to_rect(self, image,bboxes: List[BoundingBox]) -> List[rectangle]:
+        rectangles = []
+        
+        for bbox in bboxes:
+            x_upperleft, y_upperleft, x_lowerright, y_lowerright = bbox.coordinates
+            rectangles.append(rectangle(x_upperleft, y_upperleft, x_lowerright, y_lowerright))
+            
+        return rectangles
+        

@@ -1,13 +1,12 @@
 """Canonical representations for images being handled"""
 
-from typing import List, Optional, Set
+from typing import Optional
 
 import numpy as np
 import json
 
 from ..utils import image_utils, numpy_encoder
 from ..data.db_utils import np_to_binary, binary_to_b64
-from ..facedetection.face_detection_results import FaceDetectionResults
 
 class KeyFrame:
     """
@@ -21,7 +20,6 @@ class KeyFrame:
     """
     __keyframe_id: str
     __video_id: str
-    __faces_ids: Set[str]
     __timestamp: Optional[int]
 
 # TODO: video_id must be a mandatory property
@@ -34,7 +32,6 @@ class KeyFrame:
         self.__timestamp = timestamp
         self.__set_image(keyframe_image)
         self.__set_base64_image(keyframe_image)
-        self.__faces_ids = set()
 
     def __save_json_image(self, keyframe_image):
         if(keyframe_image.all() != None):
@@ -67,9 +64,6 @@ class KeyFrame:
         else:
             self.__base64_image = None
 
-    def add_face(self, face_id: str)-> None:
-        self.__faces_ids.add(face_id)
-
     @property
     def keyframe_id(self):
         return self.__keyframe_id
@@ -77,10 +71,6 @@ class KeyFrame:
     @property
     def video_id(self):
         return self.__video_id
-
-    @property
-    def faces_ids(self):
-        return self.__faces_ids
 
     @property
     def timestamp(self):

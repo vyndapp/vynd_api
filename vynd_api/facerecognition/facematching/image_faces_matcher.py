@@ -1,95 +1,59 @@
-
-from typing import List, Dict, Collection
+from typing import List, NamedTuple, Optional
 
 import numpy as np
-import json
 
 from . import CLIENT
 from . import FaceCollection
 from . import FaceEmbedding
-from .face_matching_results import FaceMatchingResults
 from .face_match_status import FaceMatchStatus
-from .face_match import FaceMatch
-from . import recognition_utils, image_utils
-from . import numpy_encoder
-from . import db_utils
+from ... utils.recognition_utils import cosine_similarity_distance
+from ..facegrouping.face_grouping import group_faces
+
+class GroupMatch(NamedTuple):
+    face_embeddings: List[FaceEmbedding]
+    match_status: FaceMatchStatus
+    matched_id: Optional[str]
 
 class ImageFacesMatcher():
 
-    def __init__(self, face_collection: Collection=CLIENT.vynd_db_test.face_collection):
+    def __init__(self, face_collection=CLIENT.vynd_db_test.face_collection):
         self.__face_collection = FaceCollection(face_collection)
-        self.__similarity_threshold = 0.3
+        self.__similarity_distance_threshold = 0.3
         self.__default_face_dims = (100, 100)
 
-    def match_faces(self, face_embeddings: List[FaceEmbedding]) -> FaceMatchingResults:
+    def match_faces(self, face_embeddings: List[FaceEmbedding]) -> List[GroupMatch]:
         """
-        - Matches FaceEmbeddings for a specific KeyFrame with Faces previously stored in DB
+        - Matches FaceEmbeddings for a specific all KeyFrame with Faces previously stored in DB
         - If there are faces that are not matched, they are inserted to the DB
         - Returns: FaceMatchingResults
         """
-        self.__all_faces = self.__face_collection.get_all_faces()
+        ## TODO: get feaures only, not the whole face document
+        all_faces = self.__face_collection.get_all_faces_features()
+        face_groups: List[List[FaceEmbedding]] = group_faces(face_embeddings, \
+         lambda features_a, features_b: cosine_similarity_distance(features_a, features_b) < 0.28)
 
-        matched_faces: List[FaceMatch] = self.__find_most_similar_face(face_embeddings)
-        self.__update_db(matched_faces, face_embeddings)
+        group_matches: List[GroupMatch] = self.__get_group_matches(face_groups, all_faces)
 
-        return FaceMatchingResults(matched_faces=matched_faces)
+        return group_matches
 
-    def __update_db(self, face_matches: List[FaceMatch], face_embeddings: List[FaceEmbedding]) -> None:
-        """
-        - Update previously added faces with new features/keyframes/videos
-        - Insert new faces to DB
-        """
-        for (face_match, face_embedding) in zip(face_matches, face_embeddings):
-            if(face_match.face_match_status == FaceMatchStatus.UNKNOWN_FACE):
-                resized_face_image = image_utils.resize_image(face_embedding.face_image, new_shape=(self.__default_face_dims))
-                face_id = self.__face_collection.insert_new_face(keyframe_id=face_embedding.keyframe_id,
-                                                                 video_id=face_embedding.video_id,
-                                                                 features=face_embedding.features,
-                                                                 face_image=resized_face_image,
-                                                                 confidence=face_embedding.confidence)
-                face_match.face_id = face_id                                                                 
-            else:
-                face = self.__face_collection.get_face_by_id(face_match.most_similar_face_id)
-                # print('face already existed, updating...')
-                r4 = self.__face_collection.add_keyframe_id(face_match.most_similar_face_id, face_embedding.keyframe_id)
-                r5 = self.__face_collection.add_video_id(face_match.most_similar_face_id, face_embedding.video_id)
-                if(face_embedding.confidence > face['confidence_score']):
-                    # print('update features, image, confidence', end=' ')
-                    r1 = self.__face_collection.update_features(face_match.most_similar_face_id, face_embedding.features)
-                    r2 = self.__face_collection.update_face_image(face_match.most_similar_face_id, face_embedding.face_image)
-                    r3 = self.__face_collection.update_confidence_score(face_match.most_similar_face_id, face_embedding.confidence)
-                    # print(r1, r2, r3, r4, r5)
-                face_match.face_id = face_match.most_similar_face_id
+    def __get_group_matches(self, groups: List[List[FaceEmbedding]], all_faces) -> List[GroupMatch]:
 
-    def __find_most_similar_face(self, face_embeddings: List[FaceEmbedding]) -> List[FaceMatch]:
-        face_matches = []
+        def find_most_similar_face(group: List[FaceEmbedding]):
+            best_sum, best_face = np.inf, None
+            for face in all_faces:
+                face_sum = 0
+                for embedding in group:
+                    distance = cosine_similarity_distance(embedding.features, face['features'])
+                    if distance < self.__similarity_distance_threshold:
+                        face_sum += distance
+                if face_sum != 0 and face_sum < best_sum:
+                    best_sum, best_face = face_sum, face['_id']
+            return best_face
 
-        for face_embedding in face_embeddings:
-            embedding1 = face_embedding.features
-            min_cosine_similarity_distance = np.inf
-            most_similar_id = ""
-            most_similar_name = ""
+        def get_group_match(group) -> GroupMatch:
+            face_id = find_most_similar_face(group)
+            match_status = FaceMatchStatus.MATCHED if face_id else FaceMatchStatus.UNKNOWN_FACE
+            return GroupMatch(face_embeddings=group, match_status=match_status, matched_id=face_id)
 
-            for face in self.__all_faces.rewind():
-                embedding2 = db_utils.binary_to_np(face['features'])
-                cosine_similarity_dist = recognition_utils.cosine_similarity_distance(embedding1, 
-                                                                                      embedding2)
-
-                if(cosine_similarity_dist < min_cosine_similarity_distance):
-                    min_cosine_similarity_distance = cosine_similarity_dist
-                    most_similar_id = str(face['_id'])
-                    most_similar_name = face['name']
-
-            # print(face_embedding.keyframe_id, most_similar_id, min_cosine_similarity_distance)
-            if(min_cosine_similarity_distance < self.__similarity_threshold):
-                face_matches.append(FaceMatch(features=embedding1,
-                                              most_similar_face_id=most_similar_id,
-                                              face_match_status=FaceMatchStatus.MATCHED,
-                                              most_similar_face_name=most_similar_name))
-            else:
-                face_matches.append(FaceMatch(features=embedding1,
-                                              most_similar_face_id=most_similar_id,
-                                              face_match_status=FaceMatchStatus.UNKNOWN_FACE,
-                                              most_similar_face_name=most_similar_name))
+        return list(map(get_group_match, groups))
         
-        return face_matches

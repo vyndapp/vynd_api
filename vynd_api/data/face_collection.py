@@ -29,7 +29,6 @@ class FaceCollection:
         - video_id: str
         - features: numpy.ndarray
         - face_image: numpy.ndarray
-        - confidence: flaot
         Returns:
         - inserted_face_id: str
         """
@@ -39,8 +38,7 @@ class FaceCollection:
                 'keyframe_ids': [keyframe_id],
                 'video_ids': [video_id],
                 'features': np_to_binary(features),
-                'face_images': np_to_binary(face_image),
-                'confidence_score': float(confidence),
+                'face_image': np_to_binary(face_image),
                 'is_identified': False,
                 'name': None
             }
@@ -64,10 +62,10 @@ class FaceCollection:
                                            projection={'video_ids': True, '_id': True}))
 
     def get_faces_info(self):
-        faces = list(self.__collection.find(projection={'_id': True, 'name': True, 'face_images': True}))
+        faces = list(self.__collection.find(projection={'_id': True, 'name': True, 'face_image': True}))
         for face in faces:
             face['_id'] = str(face['_id'])
-            face['face_images'] = str(binary_to_b64(face['face_images']))
+            face['face_image'] = str(binary_to_b64(face['face_image']))
         return faces
     
     def add_keyframe_id(self, face_id: str, keyframe_id: str):
@@ -92,18 +90,6 @@ class FaceCollection:
         """
         result = self.__collection.update_one(filter={'_id': ObjectId(face_id)},
                                               update={'$addToSet': {'video_ids': video_id}})
-        return (result.matched_count > 0)
-
-    def update_confidence_score(self, face_id: str, confidence: float):
-        """
-        Params:
-        - face_id: str
-        - confidence: float
-        Returns:
-        - update_result: bool
-        """
-        result = self.__collection.update_one(filter={'_id': ObjectId(face_id)},
-                                              update={'$set': {'confidence_score': float(confidence)}})
         return (result.matched_count > 0)
 
     def update_name(self, face_id: str, name: str):
@@ -139,7 +125,7 @@ class FaceCollection:
         - update_result: bool
         """
         result = self.__collection.update_one(filter={'_id': ObjectId(face_id)},
-                                              update={'$set': {'face_images': np_to_binary(face_image)}})
+                                              update={'$set': {'face_image': np_to_binary(face_image)}})
         return (result.matched_count > 0)
 
     def delete_face(self, face_id: str) -> DeleteResult:

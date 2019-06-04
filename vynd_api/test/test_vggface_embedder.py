@@ -2,11 +2,9 @@
 from typing import List
 
 import unittest
-import numpy as np
 
 from ..facerecognition.faceembedding.vggface_embedder import VGGFaceEmbedder
 from ..facerecognition.faceembedding.image_faces_embedder import ImageFacesEmbedder
-from ..facerecognition.faceembedding.face_embedding_results import FaceEmbeddingResults
 from ..facerecognition.faceembedding.face_embedding import FaceEmbedding
 from ..facedetection.image_face_detector import ImageFaceDetector
 from ..facedetection.faced import FacedDetector

@@ -1,26 +1,14 @@
-
-from typing import Optional, List, NamedTuple
 from bson.objectid import ObjectId
 from pymongo.results import DeleteResult
-from PIL import Image
-from io import BytesIO
 
-import base64
 import numpy as np
-import bson
 
-# from ..facerecognition.facematching.face_match import FaceMatch
 from . import CLIENT
-from ..utils.numpy_encoder import NumpyEncoder
-from ..utils.image_utils import rgb_to_base64
 from .db_utils import np_to_binary, binary_to_np, binary_to_b64
 
 class FaceCollection:
     def __init__(self, collection=CLIENT.vynd_db.face_collection):
         self.__collection = collection
-
-    # def create_index(self, field_name: str):
-    #     self.__collection.create_index({field_name: "text"})
 
     def insert_new_face(self, keyframe_id: str, video_id: str, features: np.ndarray, face_image: np.ndarray) -> str:
         """
@@ -137,9 +125,16 @@ class FaceCollection:
         """
         return self.__collection.delete_one(filter={'_id': ObjectId(face_id)})
 
-    def get_all_faces(self):
-        return self.__collection.find({})
+    def get_all_faces_features(self):
+        faces = list(self.__collection.find(projection={'features': True}))
+        for face in faces:
+            face['_id'] = str(face['_id'])
+            face['features'] = binary_to_np(face['features'])
+        return faces
     
+    def get_all_faces_video_ids(self):
+        return list(self.__collection.find(projection={'video_ids': True, '_id': False}))
+
     def delete_all_faces(self):
         """
         Deletes all records,
@@ -150,6 +145,3 @@ class FaceCollection:
 
     def get_number_of_records(self):
         return self.__collection.count_documents({})
-
-# fc = FaceCollection()
-# fc.delete_all_faces()

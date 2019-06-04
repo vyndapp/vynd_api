@@ -1,13 +1,10 @@
-
+from typing import List
 import numpy as np
 import time
-
-from typing import List
 
 from .image_faces_embedder import ImageFacesEmbedder
 from .face_embedding_results import FaceEmbeddingResults
 from .face_embedding import FaceEmbedding
-from . import DetectedFace
 from .. import FaceDetectionResults
 from .. import vggface2_utlis, image_utils
 
@@ -31,7 +28,7 @@ class VGGFaceEmbedder(ImageFacesEmbedder):
         """
         face_embeddings: List[FaceEmbedding] = []
         for face in detection_results.detected_faces:
-            face_embedding = self.__image_to_embedding(face.aligned_image)
+            face_embedding = self.image_to_embedding(face.image)
             face_embeddings.append(FaceEmbedding(features=face_embedding, 
                                                  keyframe_id=detection_results.keyframe_id,
                                                  video_id=detection_results.video_id,
@@ -54,7 +51,8 @@ class VGGFaceEmbedder(ImageFacesEmbedder):
         self.__phase_train_tensor = self.__sess.graph.get_tensor_by_name(phase_train_tensor_name)
         self.__embedding_tensor = self.__sess.graph.get_tensor_by_name(embedding_tensor_name)
 
-    def __image_to_embedding(self, image: np.ndarray) -> np.ndarray:
+    ## TODO: make embedder receive one image
+    def image_to_embedding(self, image: np.ndarray) -> np.ndarray:
         """
         Transform a cropped face's image into a vector of shape (512,) which is the feature vector
         """

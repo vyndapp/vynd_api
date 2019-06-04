@@ -12,7 +12,7 @@ decorator==4.4.0
 dnspython==1.16.0
 filelock==3.0.10
 boost
-boost-python
+boost-python --with-python3
 cmake
 dlib==19.5.1
 git+https://github.com/iitzco/faced.git

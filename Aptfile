@@ -2,5 +2,3 @@ build-essential
 cmake
 libgtk-3-dev
 libboost-all-dev
-rar
-unrar

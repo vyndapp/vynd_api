@@ -131,6 +131,9 @@ class FaceCollection:
             face['_id'] = str(face['_id'])
             face['features'] = binary_to_np(face['features'])
         return faces
+    
+    def get_all_faces_video_ids(self):
+        return list(self.__collection.find(projection={'video_ids': True, '_id': False}))
 
     def delete_all_faces(self):
         """

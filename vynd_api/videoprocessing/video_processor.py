@@ -1,22 +1,22 @@
 from typing import List
 
-import numpy as np
 from bson import ObjectId
 
 from .video_processing_results import VideoProcessingResult
 from ..entities.video import Video
 from ..entities.user import User
 from ..entities.keyframe import KeyFrame
+from ..utils import image_utils
 from ..facedetection.faced import FacedDetector
 from ..facedetection.image_face_detector import ImageFaceDetector
 from ..facedetection.face_detection_results import FaceDetectionResults
 
 from ..facerecognition.faceembedding.image_faces_embedder import ImageFacesEmbedder
 from ..facerecognition.faceembedding.vggface_embedder import VGGFaceEmbedder
-from ..facerecognition.faceembedding.face_embedding_results import FaceEmbeddingResults
+from ..facerecognition.faceembedding.face_embedding import FaceEmbedding
 
-from ..facerecognition.facematching.image_faces_matcher import ImageFacesMatcher
-from ..facerecognition.facematching.face_matching_results import FaceMatchingResults
+from ..facerecognition.facematching.face_match_status import FaceMatchStatus
+from ..facerecognition.facematching.image_faces_matcher import ImageFacesMatcher, GroupMatch
 
 from ..data.face_collection import FaceCollection
 from ..data.keyframe_collection import KeyFrameCollection
@@ -24,18 +24,9 @@ from ..data.video_collection import VideoCollection
 from ..data import CLIENT
 
 class VideoProcessor:
-    """
-    - video: Video
-    - user: User
-    - face_collection: Collection
-    - keyframe_collection: Collection
-    - video_collection: Collection
-    """
-    __video: Video
-    __user: User
 
     def __init__(self,
-                 face_collection=CLIENT.vynd_db.face_collection, 
+                 face_collection=CLIENT.vynd_db.face_collection,
                  keyframe_collection=CLIENT.vynd_db.keyframe_collection,
                  video_collection=CLIENT.vynd_db.video_collection):
         self.__face_collection = FaceCollection(face_collection)
@@ -44,51 +35,71 @@ class VideoProcessor:
         self.__image_face_detector: ImageFaceDetector = FacedDetector()
         self.__image_face_embedder: ImageFacesEmbedder = VGGFaceEmbedder()
         self.__image_face_matcher: ImageFacesMatcher = ImageFacesMatcher(face_collection=face_collection)
+        self.__default_face_dims = (100, 100)
 
     def is_invalid_id(self, video_id: str) -> bool:
         return not ObjectId.is_valid(video_id) or \
             self.__video_collection.get_video_by_id(video_id) is None
 
-    def process(self, video_id: str, key_frames: List[KeyFrame]) -> VideoProcessingResult:
-        # todo: Create a VideoDetector instance for a specific Image Detection Algo. Factory?
-        """
-        - Creates new entity for each keyframe found in video in DB
-        - Matched faces found in keyframe with faces in DB
-        - Insert faces that are not matched
-        - Add all found faces in a Set() in video entity
-        - Add all faces found inside a keyframe in a Set() in keyframe entity
-        - Add keyframe_id in a Set() in face entity
-        - Add video_id in a List() in face entity
-        - Returns: VideoProcessingResult
-        """
+    def __insert_keyframes(self, video_id: str, keyframes: List[KeyFrame]) -> List[str]:
+        return [self.__keyframe_collection.insert_new_keyframe(video_id=video_id)
+                for keyframe in keyframes]
 
+    def __add_keyframes_to_video(self, video_id: str, keyframe_ids: List[str]):
+        for keyframe_id in keyframe_ids:
+           self.__video_collection.add_keyframe(video_id=video_id,
+                                                keyframe_id=keyframe_id)
+
+    def process(self, video_id: str, keyframes: List[KeyFrame]) -> VideoProcessingResult:
         if self.is_invalid_id(video_id):
             return VideoProcessingResult.INVALID_VIDEO_ID
 
-        for keyframe in key_frames:
+        # keyframe_ids = self.__insert_keyframes(video_id, keyframes)
+        # self.__add_keyframes_to_video(video_id, keyframe_ids)
+
+        face_embedding_results: List[FaceEmbedding] = []
+
+        for keyframe in keyframes:
             keyframe_id = self.__keyframe_collection.insert_new_keyframe(video_id=video_id)
             self.__video_collection.add_keyframe(video_id=video_id,
                                                  keyframe_id=keyframe_id)
             keyframe.video_id = video_id
             keyframe.keyframe_id = keyframe_id
             face_detection_result: FaceDetectionResults = self.__image_face_detector.detect(keyframe)
-            face_embedding_result: FaceEmbeddingResults = self.__image_face_embedder.faces_to_embeddings(face_detection_result)
-            face_matching_results: FaceMatchingResults = self.__image_face_matcher.match_faces(face_embedding_result)
-            
-            for face in face_matching_results.matched_faces:
-                self.__keyframe_collection.add_face(keyframe_id, face.face_id)
-                self.__video_collection.add_face(video_id, face.face_id)
-        self.__video_collection.update_status(video_id, True)
+            face_embedding_result: List[FaceEmbedding] = self.__image_face_embedder.faces_to_embeddings(face_detection_result)
+            face_embedding_results.extend(face_embedding_result)
 
+        group_matches: List[GroupMatch] = self.__image_face_matcher.match_faces(face_embedding_results)
+        self.__update_db(video_id, group_matches)
+        self.__video_collection.update_status(video_id, True)
+        
         return VideoProcessingResult.SUCCESS
 
+    def __update_db(self, video_id: str, group_matches: List[GroupMatch]):
+        self.__add_new_faces(group_matches)
+        self.__add_video_to_faces_assocs(video_id, group_matches)
+        self.__add_faces_to_video_assocs(video_id, group_matches)
 
+    def __add_new_faces(self, group_matches):
+        for group_match in group_matches:
+            if group_match.match_status == FaceMatchStatus.UNKNOWN_FACE:
+                group_match.matched_id = self.__add_new_face(group_match)
 
-# insert new video to DB
-# get new inserted video ID 
-# for each keyframe in video:
-#     insert new keyframe to DB 
-#     add new inserted keyframe ID to video entity
-#     detect faces using image face detector
-#     embbed faces using image face embedder
-#     matches faces uing image face matcher
+    def __add_new_face(self, group_match) -> str:
+        face_embedding = group_match.face_embeddings[0]
+        resized_face_image = image_utils.resize_image(face_embedding.face_image, \
+                new_shape=(self.__default_face_dims))
+        return self.__face_collection.insert_new_face(keyframe_id=face_embedding.keyframe_id,\
+                                                      video_id=face_embedding.video_id, \
+                                                      features=face_embedding.features, \
+                                                      face_image=resized_face_image)
+        
+    def __add_video_to_faces_assocs(self, video_id: str, group_matches: List[GroupMatch]):
+        for group_match in group_matches:
+            face_id = group_match.matched_id
+            self.__video_collection.add_face(video_id, face_id)
+
+    def __add_faces_to_video_assocs(self, video_id: str, group_matches: List[GroupMatch]):
+        for group_match in group_matches:
+            if group_match.match_status == FaceMatchStatus.MATCHED:
+                self.__face_collection.add_video_id(group_match.matched_id, video_id)

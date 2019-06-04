@@ -11,6 +11,13 @@ colorama==0.4.1
 decorator==4.4.0
 dnspython==1.16.0
 filelock==3.0.10
+build-essential
+libgtk-3-dev
+libboost-all-dev
+boost
+boost-py
+cmake
+dlib==19.5.1
 git+https://github.com/iitzco/faced.git
 Flask==1.0.3
 Flask-API==1.1

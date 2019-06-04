@@ -10,12 +10,11 @@ from .face_detection_results import FaceDetectionResults, DetectedFace
 from .face_detection_status import FaceDetectionStatus
 from .bounding_box import BoundingBox
 from .facealignment.face_alignment import FaceAlignment
-from ..test.test_utils import save_img
 from ..entities.keyframe import KeyFrame
 
 class FacedDetector(ImageFaceDetector):
     
-    def __init__(self, minimum_confidence: float = 0.9, offset_value: float = 5, pad_value: int = 15):
+    def __init__(self, minimum_confidence: float = 0.9, offset_value: float = 25, pad_value: int = 15):
         """
             Faced Face Detection Algorithm:
             - A single shot detection algorithm with CPU bound performance based on CNNs

@@ -7,7 +7,7 @@ from flask import jsonify, make_response
 
 from .. import KeyFrame
 from .. import VideoProcessor, VideoProcessingResult
-from .. import settings
+# from .. import settings
 
 class ProcessKeyFrames(Resource):
 
@@ -23,7 +23,7 @@ class ProcessKeyFrames(Resource):
             return make_response(jsonify(error="you must send an array of base64 images of type List[decoded_base64]"), status.HTTP_406_NOT_ACCEPTABLE)
 
          key_frames: List[KeyFrame] = [KeyFrame(x) for x in key_frames]
-         result: VideoProcessingResult = settings.video_processor.process(video_id, key_frames)
+         result: VideoProcessingResult = VideoProcessor().process(video_id, key_frames)
 
          if result == VideoProcessingResult.SUCCESS:
             return make_response(jsonify(result=str(result.SUCCESS)), status.HTTP_200_OK)

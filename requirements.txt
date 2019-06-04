@@ -19,6 +19,7 @@ gast==0.2.2
 gdown==3.8.1
 grpcio==1.19.0
 gunicorn==19.9.0
+googledrivedownloader==0.4
 h5py==2.9.0
 idna==2.8
 imutils==0.5.2

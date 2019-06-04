@@ -7,6 +7,7 @@ from .face_embedding_results import FaceEmbeddingResults
 from .face_embedding import FaceEmbedding
 from .. import FaceDetectionResults
 from .. import vggface2_utlis, image_utils
+from .. import download_vggface_model
 
 class VGGFaceEmbedder(ImageFacesEmbedder):
     """
@@ -15,6 +16,7 @@ class VGGFaceEmbedder(ImageFacesEmbedder):
     """
     
     def __init__(self):
+        download_vggface_model()
         self.__vggface_path = '../models/vggface2/vggface2.pb' # frozen graph path
         self.__default_dims = (160, 160) # input dimensions for the model
         self.__open_session()

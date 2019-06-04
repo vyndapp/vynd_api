@@ -9,4 +9,4 @@ from ..facedetection.face_detection_results import DetectedFace, FaceDetectionRe
 
 from ..utils import image_utils, recognition_utils, numpy_encoder, vggface2_utlis
 
-from ..models.download_vggface_model import download_vggface_model
+from ..models.download_vggface_model import download_vggface_model, vgg_exist

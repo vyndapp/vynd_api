@@ -17,7 +17,7 @@ class VGGFaceEmbedder(ImageFacesEmbedder):
     
     def __init__(self):
         self.__default_dims = (160, 160) # input dimensions for the model
-        self.__vggface_path = '../models/vggface2/vggface2.pb' # frozen graph path
+        self.__vggface_path = '../models/vggface2.pb' # frozen graph path
         if(vgg_exist() == False):
             download_vggface_model()
             self.__open_session()

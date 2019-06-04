@@ -8,27 +8,17 @@ import rarfile
 from pathlib import Path
 
 cur_dir = os.path.dirname(__file__)
-rar_vgg_path = Path(cur_dir, './vggface.rar')
-vgg_path = Path(cur_dir, './')
+pb_vgg_path = Path(cur_dir, './vggface2.pb')
 
 def download_vggface_model():
     if(vgg_exist() == False):
-        id_vgg = '1eqd-NRBc6JR_gUtIXt-ZO7gargrvwsjn'
-        # GDOWN LIB
-        # id_test = '1XBDOcqsnN9uk6EQY2OgQR97QOLc7Mpvj'
-        pb_file_link = 'https://drive.google.com/uc?id=' + id_vgg
-        gdown.download(pb_file_link, str(rar_vgg_path), False) # download rar file from google drive
-        rar_file = rarfile.RarFile(str(rar_vgg_path))
-        print(rar_file.namelist())
-        rar_file.extractall()
-        # patoolib
-        # patoolib.extract_archive(str(rar_vgg_path), outdir=str(vgg_path)) # extract the file
-        
-        os.remove(rar_vgg_path) # remove the rar file
+        id_vgg_pb = '13Q3N7hxGP91hBzkLlU-7aEhemZQ-wRma'
+        pb_file_link = 'https://drive.google.com/uc?id=' + id_vgg_pb
+        gdown.download(pb_file_link, str(pb_vgg_path), False) # download rar file from google drive
     else:
         print("VGGFace2 .pb file is already installed")
         
 def vgg_exist():
-    if(os.path.exists(str(Path(cur_dir, './vggface2'))) == False):
+    if(os.path.exists(str(Path(cur_dir, './vggface2.pb'))) == False):
         return False
     return True

@@ -19,8 +19,8 @@ class VGGFaceEmbedder(ImageFacesEmbedder):
         self.__default_dims = (160, 160) # input dimensions for the model
         self.__open_session()
 
-    def __del__(self):
-        self.__close_session()
+    # def __del__(self):
+    #     self.__close_session()
 
     def faces_to_embeddings(self, detection_results: FaceDetectionResults) -> List[FaceEmbedding]:
         """

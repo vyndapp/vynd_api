@@ -9,5 +9,3 @@ __pycache__
 vynd_api/test/detected_faces
 vynd_api/test/aligned_faces
 vynd_api/test/aligned_faces_dlib
-vynd_api/models/vggface2
-vynd_api/models/vggface2.pb

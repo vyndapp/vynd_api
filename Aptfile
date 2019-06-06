@@ -1,0 +1,9 @@
+multiverse 
+build-essential 
+cmake
+libgtk-3-dev
+libboost-all-dev
+unrar
+unrar-free
+zip
+unzip 

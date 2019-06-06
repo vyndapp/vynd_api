@@ -1,5 +1,5 @@
 from typing import List, Optional
-from dataclasses import dataclass
+# from dataclasses import dataclass
 
 import numpy as np
 
@@ -10,11 +10,16 @@ from .face_match_status import FaceMatchStatus
 from ...utils.recognition_utils import cosine_similarity_distance
 from ..facegrouping.face_grouping import group_faces
 
-@dataclass(init=True)
+# @dataclass(init=True)
 class GroupMatch():
     face_embeddings: List[FaceEmbedding]
     match_status: FaceMatchStatus
     matched_id: Optional[str]
+    
+    def __init__(self, face_embeddings: List[FaceEmbedding], match_status: FaceMatchStatus, matched_id: Optional[str]):
+        self.face_embeddings = face_embeddings
+        self.match_status = match_status
+        self.matched_id = matched_id
 
 class ImageFacesMatcher():
 

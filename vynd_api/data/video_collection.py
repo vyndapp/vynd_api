@@ -1,6 +1,6 @@
-
+from typing import List, Union
 from bson.objectid import ObjectId
-from pymongo.results import DeleteResult, UpdateResult
+from pymongo.results import DeleteResult
 
 from . import CLIENT
 
@@ -30,7 +30,7 @@ class VideoCollection:
         return self.__collection.find_one({'_id': ObjectId(video_id)})
 
     def get_faces(self, video_id: str):
-        return list(self.__collection.find(filter={'_id': ObjectId(video_id)}, 
+        return list(self.__collection.find(filter={'_id': ObjectId(video_id)},
                     projection={'faces_ids': True, '_id': False}))
 
     def get_processed_videos(self):
@@ -61,6 +61,14 @@ class VideoCollection:
                                               update={'$addToSet': {'faces_ids': face_id}})
         return (result.matched_count > 0)
     
+    def add_faces(self, video_id: str, face_ids: Union[str, List[str]]):
+        """
+        face_ids can be a single value or a list
+        """
+        result = self.__collection.update_one(filter={'_id': ObjectId(video_id)},
+                                              update={'$push': {'faces_ids': {'$each': face_ids}}})
+        return (result.matched_count > 0)
+
     def update_status(self, video_id: str, new_status: bool):
         """
         Params:
@@ -95,6 +103,4 @@ class VideoCollection:
     
     def get_number_of_records(self):
         return self.__collection.count_documents({})
-
-# vc = VideoCollection()
-# vc.delete_all_videos()
+        

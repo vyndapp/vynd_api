@@ -80,7 +80,7 @@ class VideoProcessor:
         self.__add_video_to_faces_assocs(video_id, group_matches)
         self.__add_faces_to_video_assocs(video_id, group_matches)
 
-    def __add_new_faces(self, group_matches):
+    def __add_new_faces(self, group_matches): # TODO: Use insertMany
         for group_match in group_matches:
             if group_match.match_status == FaceMatchStatus.UNKNOWN_FACE:
                 group_match.matched_id = self.__add_new_face(group_match)
@@ -95,9 +95,8 @@ class VideoProcessor:
                                                       face_image=resized_face_image)
         
     def __add_video_to_faces_assocs(self, video_id: str, group_matches: List[GroupMatch]):
-        for group_match in group_matches:
-            face_id = group_match.matched_id
-            self.__video_collection.add_face(video_id, face_id)
+        face_ids = [group_match.matched_id for group_match in group_matches]
+        self.__video_collection.add_faces(video_id, face_ids)
 
     def __add_faces_to_video_assocs(self, video_id: str, group_matches: List[GroupMatch]):
         for group_match in group_matches:

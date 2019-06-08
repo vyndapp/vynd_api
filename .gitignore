@@ -6,6 +6,7 @@ env*
 __pycache__
 .pylintrc
 .mypy_cache
+vynd_api/models/vggface2.pb
 vynd_api/test/detected_faces
 vynd_api/test/aligned_faces
 vynd_api/test/aligned_faces_dlib

@@ -8,7 +8,7 @@ def _get_face_connections(face_embeddings: List[FaceEmbedding], is_connected_fn)
     for i, embedding_1 in enumerate(face_embeddings):
         for j in range(i + 1, len(face_embeddings)):
             embedding_2 = face_embeddings[j]
-            connection_matrix[i][j] = is_connected_fn(embedding_1.features, \
+            connection_matrix[i][j] = connection_matrix[j][i] = is_connected_fn(embedding_1.features, \
                                       embedding_2.features)
     return connection_matrix
 

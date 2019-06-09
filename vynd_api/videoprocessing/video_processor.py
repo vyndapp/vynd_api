@@ -8,6 +8,8 @@ from ..entities.user import User
 from ..entities.keyframe import KeyFrame
 from ..utils import image_utils
 from ..facedetection.faced import FacedDetector
+from ..facedetection.hog_detector import HogDetector
+from ..facedetection.yolov3_detector import YOLOv3Detector
 from ..facedetection.image_face_detector import ImageFaceDetector
 from ..facedetection.face_detection_results import FaceDetectionResults
 
@@ -32,7 +34,9 @@ class VideoProcessor:
         self.__face_collection = FaceCollection(face_collection)
         self.__keyframe_collection = KeyFrameCollection(keyframe_collection)
         self.__video_collection = VideoCollection(video_collection)
-        self.__image_face_detector: ImageFaceDetector = FacedDetector()
+        self.__faced_image_face_detector: ImageFaceDetector = FacedDetector()
+        self.__hog_image_face_detector: ImageFaceDetector = HogDetector()
+        self.__yolov3_image_face_detector: ImageFaceDetector = YOLOv3Detector()
         self.__image_face_embedder: ImageFacesEmbedder = VGGFaceEmbedder()
         self.__image_face_matcher: ImageFacesMatcher = ImageFacesMatcher(face_collection=face_collection)
         self.__default_face_dims = (100, 100)
@@ -65,7 +69,7 @@ class VideoProcessor:
                                                  keyframe_id=keyframe_id)
             keyframe.video_id = video_id
             keyframe.keyframe_id = keyframe_id
-            face_detection_result: FaceDetectionResults = self.__image_face_detector.detect(keyframe)
+            face_detection_result: FaceDetectionResults = self.__yolov3_image_face_detector.detect(keyframe)
             face_embedding_result: List[FaceEmbedding] = self.__image_face_embedder.faces_to_embeddings(face_detection_result)
             face_embedding_results.extend(face_embedding_result)
 

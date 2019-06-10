@@ -62,7 +62,7 @@ class FaceCollection:
         faces = list(self.__collection.find(projection={'_id': True, 'name': True, 'face_image': True}))
         for face in faces:
             face['_id'] = str(face['_id'])
-            face['face_image'] = str(binary_to_b64(face['face_image']))
+            face['face_image'] = binary_to_b64(face['face_image']).decode()
         return faces
     
     def add_keyframe_id(self, face_id: str, keyframe_id: str):

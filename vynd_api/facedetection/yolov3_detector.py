@@ -22,7 +22,7 @@ from ..test.test_utils import save_img
 class YOLOv3Detector(ImageFaceDetector):
     
     # TODO: check if model is downloaded or not
-    def __init__(self, offset_value=10):
+    def __init__(self, offset_value=20):
         yolov3_weights_path = self.__get_real_path('../models/yolov3/yolov3-wider_16000.weights')
         yolov3_cfg_path = self.__get_real_path('../models/yolov3/yolov3-face.cfg')
         self.__yolov3 = self.__init_detector(weights_path=yolov3_weights_path, 
@@ -69,7 +69,11 @@ class YOLOv3Detector(ImageFaceDetector):
         rectangles = []
         for face in faces:
             x, y, w, h = face[0], face[1], face[2], face[3]
-            cropped_images.append(keyframe.image[y:y+h, x:x+w, :])
+            x_upperleft = max(0, x - self.__offset_value)
+            y_upperleft = max(0, y - self.__offset_value)
+            x_lowerright = min(keyframe.image.shape[1], x + w + self.__offset_value)
+            y_lowerright = min(keyframe.image.shape[0], y + h + self.__offset_value)
+            cropped_images.append(keyframe.image[y_upperleft:y_lowerright, x_upperleft:x_lowerright, :])
             rectangles.append(rectangle(x, y, x + w, y + h))
             
         aligned_faces = self.__face_aligner.get_aligned_faces(keyframe.image, rectangles)

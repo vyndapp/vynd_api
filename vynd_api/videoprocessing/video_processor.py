@@ -1,14 +1,11 @@
 from typing import List
+from collections import deque
 
 from bson import ObjectId
 
 from .video_processing_results import VideoProcessingResult
-from ..entities.video import Video
-from ..entities.user import User
 from ..entities.keyframe import KeyFrame
 from ..utils import image_utils
-from ..facedetection.faced import FacedDetector
-from ..facedetection.hog_detector import HogDetector
 from ..facedetection.yolov3_detector import YOLOv3Detector
 from ..facedetection.image_face_detector import ImageFaceDetector
 from ..facedetection.face_detection_results import FaceDetectionResults
@@ -34,8 +31,6 @@ class VideoProcessor:
         self.__face_collection = FaceCollection(face_collection)
         self.__keyframe_collection = KeyFrameCollection(keyframe_collection)
         self.__video_collection = VideoCollection(video_collection)
-        self.__faced_image_face_detector: ImageFaceDetector = FacedDetector()
-        self.__hog_image_face_detector: ImageFaceDetector = HogDetector()
         self.__yolov3_image_face_detector: ImageFaceDetector = YOLOv3Detector()
         self.__image_face_embedder: ImageFacesEmbedder = VGGFaceEmbedder()
         self.__image_face_matcher: ImageFacesMatcher = ImageFacesMatcher(face_collection=face_collection)
@@ -84,20 +79,28 @@ class VideoProcessor:
         self.__add_video_to_faces_assocs(video_id, group_matches)
         self.__add_faces_to_video_assocs(video_id, group_matches)
 
-    def __add_new_faces(self, group_matches): # TODO: Use insertMany
+    def __add_new_faces(self, group_matches):
+        new_faces = []
         for group_match in group_matches:
             if group_match.match_status == FaceMatchStatus.UNKNOWN_FACE:
-                group_match.matched_id = self.__add_new_face(group_match)
+                new_faces.append(self.__get_new_face(group_match))
 
-    def __add_new_face(self, group_match) -> str:
+        new_ids = deque(self.__face_collection.insert_new_faces(new_faces))
+        for group_match in group_matches:
+            if group_match.match_status == FaceMatchStatus.UNKNOWN_FACE:
+                group_match.matched_id = new_ids.popleft()
+                
+    def __get_new_face(self, group_match) -> str:
         face_embedding = group_match.face_embeddings[0]
         resized_face_image = image_utils.resize_image(face_embedding.face_image, \
                 new_shape=(self.__default_face_dims))
-        return self.__face_collection.insert_new_face(keyframe_id=face_embedding.keyframe_id,\
-                                                      video_id=face_embedding.video_id, \
-                                                      features=face_embedding.features, \
-                                                      face_image=resized_face_image)
-        
+        return {
+            'keyframe_id' : [face_embedding.keyframe_id],
+            'video_ids': [face_embedding.video_id],
+            'features': face_embedding.features,
+            'face_image': resized_face_image
+        }
+
     def __add_video_to_faces_assocs(self, video_id: str, group_matches: List[GroupMatch]):
         face_ids = [group_match.matched_id for group_match in group_matches]
         self.__video_collection.add_faces(video_id, face_ids)

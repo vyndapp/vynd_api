@@ -31,6 +31,15 @@ class FaceCollection:
                 'name': None
             }
         ).inserted_id)
+    
+    def insert_new_faces(self, faces):
+        for face in faces:
+            face['face_image'] = np_to_binary(face['face_image'])
+            face['features'] = np_to_binary(face['features'])
+            face['is_identified'] = False
+            face['name'] = None
+        inserted_ids = self.__collection.insert_many(faces).inserted_ids
+        return list(map(str, inserted_ids))
 
     def get_face_by_id(self, face_id: str):
         """

@@ -38,8 +38,11 @@ class FaceCollection:
             face['features'] = np_to_binary(face['features'])
             face['is_identified'] = False
             face['name'] = None
-        inserted_ids = self.__collection.insert_many(faces).inserted_ids
-        return list(map(str, inserted_ids))
+        if len(faces):
+            inserted_ids = self.__collection.insert_many(faces).inserted_ids
+            return list(map(str, inserted_ids))
+        else:
+            return []
 
     def get_face_by_id(self, face_id: str):
         """

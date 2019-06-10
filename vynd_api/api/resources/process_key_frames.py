@@ -12,11 +12,12 @@ from .. import settings
 class ProcessKeyFrames(Resource):
 
    def post(self):
-      if 'video_id' in request.form and 'base64_images' in request.form:
-         video_id = request.form['video_id']
-         key_frames = json.loads(request.form['base64_images'])
-         request.stream.read()
+      if request.get_json() and request.get_json().get('video_id') and request.get_json().get('base64_images'):
+         video_id = request.get_json()['video_id']
+         key_frames = request.get_json()['base64_images']
 
+         request.stream.read()
+         
          try:
             key_frames = [key_frame.encode() for key_frame in key_frames]
          except:

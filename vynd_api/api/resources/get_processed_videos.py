@@ -12,5 +12,6 @@ class GetProcessedVideos(Resource):
         processed_videos = self.video_collection.get_processed_videos()
         for video in processed_videos:
             video['_id'] = str(video['_id'])
-        processed_videos_ids = [video['_id'] for video in processed_videos]
-        return jsonify(processed_videos_ids=processed_videos_ids)
+        processed_videos_results = [{'video_id': video['_id'],
+                                     'extension': video['extension']} for video in processed_videos]
+        return jsonify(processed_videos_results=processed_videos_results)

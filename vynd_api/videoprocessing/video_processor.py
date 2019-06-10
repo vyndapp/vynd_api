@@ -59,18 +59,18 @@ class VideoProcessor:
         face_embedding_results: List[FaceEmbedding] = []
 
         for keyframe in keyframes:
-            keyframe_id = self.__keyframe_collection.insert_new_keyframe(video_id=video_id)
-            self.__video_collection.add_keyframe(video_id=video_id,
-                                                 keyframe_id=keyframe_id)
+            # keyframe_id = self.__keyframe_collection.insert_new_keyframe(video_id=video_id)
+            # self.__video_collection.add_keyframe(video_id=video_id,
+            #                                      keyframe_id=keyframe_id)
             keyframe.video_id = video_id
-            keyframe.keyframe_id = keyframe_id
+            keyframe.keyframe_id = ""
             face_detection_result: FaceDetectionResults = self.__yolov3_image_face_detector.detect(keyframe)
             face_embedding_result: List[FaceEmbedding] = self.__image_face_embedder.faces_to_embeddings(face_detection_result)
             face_embedding_results.extend(face_embedding_result)
 
         group_matches: List[GroupMatch] = self.__image_face_matcher.match_faces(face_embedding_results)
         self.__update_db(video_id, group_matches)
-        
+
         return VideoProcessingResult.SUCCESS
 
     def __update_db(self, video_id: str, group_matches: List[GroupMatch]):

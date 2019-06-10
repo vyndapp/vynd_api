@@ -54,7 +54,6 @@ class FaceCollection:
         for face in faces:
             face['_id'] = str(face['_id'])
             face['face_image'] = binary_to_b64(face['face_image']).decode()
-            # face['face_image'] = face['face_image'][2:-1]
         return faces
     
     def add_keyframe_id(self, face_id: str, keyframe_id: str):

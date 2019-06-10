@@ -50,9 +50,11 @@ class ImageFacesMatcher():
                 face_sum = 0
                 for embedding in group:
                     distance = cosine_similarity_distance(embedding.features, face['features'])
-                    if distance < self.__similarity_distance_threshold:
+                    if distance == 0.0:
+                        return face['_id']
+                    elif distance < self.__similarity_distance_threshold:
                         face_sum += distance
-                if face_sum != 0 and face_sum < best_sum:
+                if (face_sum != 0 and face_sum < best_sum):
                     best_sum, best_face = face_sum, face['_id']
             return best_face
 

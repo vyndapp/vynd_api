@@ -8,12 +8,13 @@ class VideoCollection:
     def __init__(self, collection=CLIENT.vynd_db.video_collection):
         self.__collection = collection
 
-    def insert_new_video(self) -> str:
+    def insert_new_video(self, video_extension: str) -> str:
         """
         Inserts new video entity to DB and return the inserted video_id
         """
         return str(self.__collection.insert_one(
             {
+                'extension': video_extension,
                 'is_processed': False,
                 'keyframes_ids': [],
                 'faces_ids': []
@@ -31,11 +32,12 @@ class VideoCollection:
 
     def get_faces(self, video_id: str):
         return list(self.__collection.find(filter={'_id': ObjectId(video_id)},
-                    projection={'faces_ids': True, '_id': False}))
+                                           projection={'faces_ids': True, '_id': False}))
 
     def get_processed_videos(self):
         return list(self.__collection.find(filter={'is_processed': True},
-                                           projection={'_id': True}))
+                                           projection={'_id': True,
+                                                       'extension': True}))
 
     def add_keyframe(self, video_id: str, keyframe_id: str):
         """

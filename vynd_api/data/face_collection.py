@@ -79,7 +79,7 @@ class FaceCollection:
         result = self.__collection.update_one(filter={'_id': ObjectId(face_id)},
                                               update={'$push': {'keyframe_ids': keyframe_id}})
         return (result.matched_count > 0)
-    
+
     def add_video_id(self, face_id: str, video_id: str):
         """
         Params:
@@ -89,7 +89,20 @@ class FaceCollection:
         - insertion_result: bool
         """
         result = self.__collection.update_one(filter={'_id': ObjectId(face_id)},
-                                              update={'$addToSet': {'video_ids': video_id}})
+                                              update={'$push': {'video_ids': video_id}})
+        return (result.matched_count > 0)
+    
+    def add_video_id_to_faces(self, face_ids: str, video_id: str):
+        """
+        Params:
+        - face_id: str
+        - video_id: str
+        Returns:
+        - insertion_result: bool
+        """
+        ids = [ObjectId(face_id) for face_id in face_ids]
+        result = self.__collection.update_many(filter={'_id': {'$in': ids}},
+                                              update={'$push': {'video_ids': video_id}})
         return (result.matched_count > 0)
 
     def update_name(self, face_id: str, name: str):

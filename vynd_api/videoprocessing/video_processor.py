@@ -70,7 +70,6 @@ class VideoProcessor:
 
         group_matches: List[GroupMatch] = self.__image_face_matcher.match_faces(face_embedding_results)
         self.__update_db(video_id, group_matches)
-        self.__video_collection.update_status(video_id, True)
         
         return VideoProcessingResult.SUCCESS
 
@@ -78,6 +77,7 @@ class VideoProcessor:
         self.__add_new_faces(group_matches)
         self.__add_video_to_faces_assocs(video_id, group_matches)
         self.__add_faces_to_video_assocs(video_id, group_matches)
+        self.__video_collection.update_status(video_id, True)
 
     def __add_new_faces(self, group_matches):
         new_faces = []
@@ -106,6 +106,8 @@ class VideoProcessor:
         self.__video_collection.add_faces(video_id, face_ids)
 
     def __add_faces_to_video_assocs(self, video_id: str, group_matches: List[GroupMatch]):
+        face_ids = []
         for group_match in group_matches:
             if group_match.match_status == FaceMatchStatus.MATCHED:
-                self.__face_collection.add_video_id(group_match.matched_id, video_id)
+                face_ids.append(group_match.matched_id)
+        self.__face_collection.add_video_id_to_faces(face_ids, video_id)

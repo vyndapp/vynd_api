@@ -1,4 +1,4 @@
-from typing import List, Union
+from typing import List, Union, Optional
 from bson.objectid import ObjectId
 from pymongo.results import DeleteResult
 
@@ -8,7 +8,7 @@ class VideoCollection:
     def __init__(self, collection=CLIENT.vynd_db.video_collection):
         self.__collection = collection
 
-    def insert_new_video(self, video_extension: str) -> str:
+    def insert_new_video(self, video_extension: Optional[str] = None) -> str:
         """
         Inserts new video entity to DB and return the inserted video_id
         """

@@ -1,6 +1,7 @@
 from bson.objectid import ObjectId
 from pymongo.results import DeleteResult
 
+import pymongo
 import numpy as np
 
 from . import CLIENT
@@ -9,6 +10,10 @@ from .db_utils import np_to_binary, binary_to_np, binary_to_b64
 class FaceCollection:
     def __init__(self, collection=CLIENT.vynd_db.face_collection):
         self.__collection = collection
+        self.__create_name_index()
+    
+    def __create_name_index(self):
+        self.__collection.create_index([('name', pymongo.TEXT)])
 
     def insert_new_face(self, video_id: str, features: np.ndarray, face_image: np.ndarray) -> str:
         """
@@ -53,11 +58,13 @@ class FaceCollection:
 
     def get_videos_by_id(self, face_id: str):
         return list(self.__collection.find(filter={'_id': ObjectId(face_id)},
-            projection={'video_ids': True, '_id': False}))
+                                           projection={'video_ids': True, 
+                                                       '_id': False}))
 
     def get_videos_by_name(self, name: str):
         return list(self.__collection.find(filter={'$text': {"$search": name}},
-                                           projection={'video_ids': True, '_id': True}))
+                                           projection={'video_ids': True, 
+                                                       '_id': True}))
 
     def get_faces_info(self):
         faces = list(self.__collection.find(projection={'_id': True, 'name': True, 'face_image': True}))

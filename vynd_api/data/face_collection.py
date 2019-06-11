@@ -65,6 +65,37 @@ class FaceCollection:
             face['_id'] = str(face['_id'])
             face['face_image'] = binary_to_b64(face['face_image']).decode()
         return faces
+        
+    def get_faces_videos(self, faces_ids):
+        faces_ids = [ObjectId(face_id) for face_id in faces_ids]
+        pipeline = [
+            {
+                '$match': {
+                    '_id': {'$in': faces_ids}
+                }
+            },
+            {
+                '$group': {
+                    '_id': 0,
+                    'video_ids': {'$push': '$video_ids'}
+                }
+            },
+            {
+                '$project': {
+                    'video_ids': {
+                        '$reduce': {
+                            'input': '$video_ids',
+                            'initialValue': [],
+                            'in': {'$setUnion': ['$$value', '$$this']}
+                        }
+                    }
+                }
+            }
+        ]
+        result = list(self.__collection.aggregate(pipeline))
+        if not result:
+            return []
+        return result[0]['video_ids']
 
     def add_keyframe_id(self, face_id: str, keyframe_id: str):
         """

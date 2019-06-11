@@ -8,7 +8,15 @@ class GetFacesInImage(Resource):
 
     face_collection = FaceCollection()
 
-    def get(self):
-        image = request.args['image']
-        faces_ids = search_by_image(image=image)
-        return jsonify(videos=faces_ids)
+    # def get(self):
+    #     image = request.args['image']
+    #     faces_ids = search_by_image(image=image.encode())
+    #     return jsonify(videos=faces_ids)
+    
+    def post(self):
+        if request.get_json() and request.get_json().get('image'):
+            image = request.get_json().get('image')
+            faces_ids = search_by_image(image=image.encode())
+            return jsonify(videos=faces_ids)
+        else:
+            return jsonify(error="error")

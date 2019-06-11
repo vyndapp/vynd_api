@@ -44,12 +44,23 @@ class YOLOv3Detector(ImageFaceDetector):
         cur_dir = os.path.dirname(__file__)
         real_path = str(Path(cur_dir, path))
         return real_path
+    
+    def __pad_image(self, image: np.ndarray, pad_value: int) -> np.ndarray:
+        """
+        Padds the input image with the specified value with a constant value=255 in the width and height only.
+        """
+        return np.pad(image, 
+                      ((pad_value, pad_value), (pad_value, pad_value), (0, 0)), 
+                      mode='constant', 
+                      constant_values=0)
         
     def detect(self, keyframe: KeyFrame) -> FaceDetectionResults:
         """
             Takes as input a KeyFrame entity and returns the FaceDetectionResults (status, bounding boxes) for that specific image:
             - image: must be a 3d numpy array (RGB image)
         """
+        padded_image = self.__pad_image(keyframe.image, 20)
+        
         # Create a 4D blob from a frame.
         blob = cv2.dnn.blobFromImage(keyframe.image,                                     
                                      1 / 255, 

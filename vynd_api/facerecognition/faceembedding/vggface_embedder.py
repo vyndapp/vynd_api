@@ -31,7 +31,7 @@ class VGGFaceEmbedder(ImageFacesEmbedder):
         for face in detection_results.detected_faces:
             face_embedding = self.image_to_embedding(face.image)
             face_embeddings.append(FaceEmbedding(features=face_embedding, 
-                                                 face_image=face.image))
+                                                 face_image=face.aligned_image))
 
         return face_embeddings
 

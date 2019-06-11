@@ -15,10 +15,9 @@ class FaceCollection:
     def __create_name_index(self):
         self.__collection.create_index([('name', pymongo.TEXT)])
 
-    def insert_new_face(self, keyframe_id: str, video_id: str, features: np.ndarray, face_image: np.ndarray) -> str:
+    def insert_new_face(self, video_id: str, features: np.ndarray, face_image: np.ndarray) -> str:
         """
         Params:
-        - keyframe_id: str
         - video_id: str
         - features: numpy.ndarray
         - face_image: numpy.ndarray
@@ -28,7 +27,6 @@ class FaceCollection:
         # TODO: change face_images -> face_image
         return str(self.__collection.insert_one(
             {
-                'keyframe_ids': [keyframe_id],
                 'video_ids': [video_id],
                 'features': np_to_binary(features),
                 'face_image': np_to_binary(face_image),
@@ -74,7 +72,38 @@ class FaceCollection:
             face['_id'] = str(face['_id'])
             face['face_image'] = binary_to_b64(face['face_image']).decode()
         return faces
-    
+        
+    def get_faces_videos(self, faces_ids):
+        faces_ids = [ObjectId(face_id) for face_id in faces_ids]
+        pipeline = [
+            {
+                '$match': {
+                    '_id': {'$in': faces_ids}
+                }
+            },
+            {
+                '$group': {
+                    '_id': 0,
+                    'video_ids': {'$push': '$video_ids'}
+                }
+            },
+            {
+                '$project': {
+                    'video_ids': {
+                        '$reduce': {
+                            'input': '$video_ids',
+                            'initialValue': [],
+                            'in': {'$setUnion': ['$$value', '$$this']}
+                        }
+                    }
+                }
+            }
+        ]
+        result = list(self.__collection.aggregate(pipeline))
+        if not result:
+            return []
+        return result[0]['video_ids']
+
     def add_keyframe_id(self, face_id: str, keyframe_id: str):
         """
         Params:
@@ -86,7 +115,7 @@ class FaceCollection:
         result = self.__collection.update_one(filter={'_id': ObjectId(face_id)},
                                               update={'$push': {'keyframe_ids': keyframe_id}})
         return (result.matched_count > 0)
-    
+
     def add_video_id(self, face_id: str, video_id: str):
         """
         Params:
@@ -96,7 +125,20 @@ class FaceCollection:
         - insertion_result: bool
         """
         result = self.__collection.update_one(filter={'_id': ObjectId(face_id)},
-                                              update={'$addToSet': {'video_ids': video_id}})
+                                              update={'$push': {'video_ids': video_id}})
+        return (result.matched_count > 0)
+    
+    def add_video_id_to_faces(self, face_ids: str, video_id: str):
+        """
+        Params:
+        - face_id: str
+        - video_id: str
+        Returns:
+        - insertion_result: bool
+        """
+        ids = [ObjectId(face_id) for face_id in face_ids]
+        result = self.__collection.update_many(filter={'_id': {'$in': ids}},
+                                              update={'$push': {'video_ids': video_id}})
         return (result.matched_count > 0)
 
     def update_name(self, face_id: str, name: str):

@@ -1,12 +1,8 @@
 import unittest
-
-import numpy as np
 from typing import List
 
 from ..videoprocessing.video_processor import VideoProcessor
 from ..videoprocessing.video_processing_results import VideoProcessingResult
-
-from ..facerecognition.faceembedding.vggface_embedder import VGGFaceEmbedder
 
 from ..data.video_collection import VideoCollection
 from ..data.face_collection import FaceCollection
@@ -59,25 +55,30 @@ class TestVideoProcessor(unittest.TestCase):
         key_frames_a = self.get_key_frames([self.group_image_a])
         self.video_processor.process(video_id_a, key_frames_a)
 
-        # omar, hazem, yahya, gasser in a group photo + hazem and omar inviduals
-        image_zuma = get_img_from_filename('resources/zuma.jpg')
-        image_omar = get_img_from_filename('resources/aligned_faces/o2.png')
+        # omar, bahi, hazem, yahya, gasser in a group photo + hazem and omar inviduals
+        img_zuma = get_img_from_filename('resources/zuma.jpg')
+        img_omar = get_img_from_filename('resources/aligned_faces/o2.png')
+
+        img_omar_zuma = get_img_from_filename('resources/omar_zuma.jpg')
+        img_omar_etch = get_img_from_filename('resources/omar_etch.jpg')
+        img_grad_group = get_img_from_filename('resources/grad_group.jpg')
 
         video_id_b = self.video_collection.insert_new_video()
-        key_frames_b = self.get_key_frames([self.group_image_b, image_omar, image_zuma])
-        self.video_processor.process(video_id_b, key_frames_b)
+        key_frames_b = self.get_key_frames([self.group_image_b, img_omar, img_zuma, img_omar_zuma, \
+            img_omar_etch, img_grad_group])
 
+        self.video_processor.process(video_id_b, key_frames_b)
         self.assertEqual(self.face_collection.get_number_of_records(), 6)
 
         # assert faces are associated to video correctly
         video_b = self.video_collection.get_video_by_id(video_id=video_id_b)
         faces_ids_in_video_b = video_b['faces_ids']
-        self.assertEqual(len(set(faces_ids_in_video_b)), 4)
+        self.assertEqual(len(set(faces_ids_in_video_b)), 6)
 
         # assert videos are associated to faces correctly
         faces_videos_ids = self.face_collection.get_all_faces_video_ids()
         faces_videos_ids_lengths = list(map(lambda elem: len(elem['video_ids']), faces_videos_ids))
-        self.assertCountEqual([1, 1, 1, 2, 2, 2], faces_videos_ids_lengths)
+        self.assertCountEqual([1, 2, 2, 2, 2, 2], faces_videos_ids_lengths)
 
 if __name__ == '__main__':
     unittest.main()

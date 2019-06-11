@@ -2,28 +2,16 @@
 
 from typing import Optional
 
-import numpy as np
 import json
+import numpy as np
+
 
 from ..utils import image_utils, numpy_encoder
 from ..data.db_utils import np_to_binary, binary_to_b64
 
 class KeyFrame:
-    """
-    KeyFrame:
-    - keyframe_id: str
-    - video_id: str
-    - faces_ids: Set[str]
-    - timestamp: Optional[int]
-    - image: np.ndarray
-    - json_image: str
-    """
-    __keyframe_id: str
-    __video_id: str
-    __timestamp: Optional[int]
 
-# TODO: video_id must be a mandatory property
-    def __init__(self, keyframe_image, timestamp: Optional[int]=0):
+    def __init__(self, keyframe_image, timestamp: Optional[int] = 0):
         """
         Params:
         - keyframe_image: numpy.ndarray | bytes
@@ -35,7 +23,7 @@ class KeyFrame:
 
     def __save_json_image(self, keyframe_image):
         if(keyframe_image.all() != None):
-            return json.dumps(keyframe_image, cls = numpy_encoder.NumpyEncoder) 
+            return json.dumps(keyframe_image, cls=numpy_encoder.NumpyEncoder)
         else:
             return None
     
@@ -65,24 +53,8 @@ class KeyFrame:
             self.__base64_image = None
 
     @property
-    def keyframe_id(self):
-        return self.__keyframe_id
-
-    @property
-    def video_id(self):
-        return self.__video_id
-
-    @property
     def timestamp(self):
         return self.__timestamp
-
-    @keyframe_id.setter
-    def keyframe_id(self, value):
-        self.__keyframe_id = value
-
-    @video_id.setter
-    def video_id(self, value):
-        self.__video_id = value
 
     image: np.ndarray = property(__get_image, __set_image)
     base64_image = property(__get_base64_image, __set_base64_image)

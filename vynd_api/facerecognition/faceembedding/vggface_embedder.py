@@ -33,7 +33,7 @@ class VGGFaceEmbedder(ImageFacesEmbedder):
             face_embeddings.append(FaceEmbedding(features=face_embedding, 
                                                  keyframe_id=detection_results.keyframe_id,
                                                  video_id=detection_results.video_id,
-                                                 face_image=face.image))
+                                                 face_image=face.aligned_image))
 
         return face_embeddings
 

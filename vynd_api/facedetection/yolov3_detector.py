@@ -81,8 +81,6 @@ class YOLOv3Detector(ImageFaceDetector):
         detected_faces: List[DetectedFace] = list(map(lambda image, aligned_image: DetectedFace(image=image, aligned_image=aligned_image), cropped_images, aligned_faces))
         
         return FaceDetectionResults(detected_faces=detected_faces,
-                                    keyframe_id=keyframe.keyframe_id,
-                                    video_id=keyframe.video_id,
                                     status=FaceDetectionStatus.SUCCESS)
     
     def __get_outputs_names(self):

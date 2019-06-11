@@ -10,10 +10,9 @@ class FaceCollection:
     def __init__(self, collection=CLIENT.vynd_db.face_collection):
         self.__collection = collection
 
-    def insert_new_face(self, keyframe_id: str, video_id: str, features: np.ndarray, face_image: np.ndarray) -> str:
+    def insert_new_face(self, video_id: str, features: np.ndarray, face_image: np.ndarray) -> str:
         """
         Params:
-        - keyframe_id: str
         - video_id: str
         - features: numpy.ndarray
         - face_image: numpy.ndarray
@@ -23,7 +22,6 @@ class FaceCollection:
         # TODO: change face_images -> face_image
         return str(self.__collection.insert_one(
             {
-                'keyframe_ids': [keyframe_id],
                 'video_ids': [video_id],
                 'features': np_to_binary(features),
                 'face_image': np_to_binary(face_image),
@@ -67,7 +65,7 @@ class FaceCollection:
             face['_id'] = str(face['_id'])
             face['face_image'] = binary_to_b64(face['face_image']).decode()
         return faces
-    
+
     def add_keyframe_id(self, face_id: str, keyframe_id: str):
         """
         Params:

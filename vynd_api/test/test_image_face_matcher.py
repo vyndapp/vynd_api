@@ -44,10 +44,9 @@ class TestImageFaceMatcher(unittest.TestCase):
     def insert_new_face_in_db(self, img_path):
         img = get_img_from_filename(img_path)
         embedding = self.embedder.image_to_embedding(img)
-        return self.face_collection.insert_new_face(keyframe_id=None,\
-                                                      video_id="123",\
-                                                      features=embedding, \
-                                                      face_image=None,  \
+        return self.face_collection.insert_new_face(video_id="123", \
+                                                    features=embedding,
+                                                    face_image=None,
                                                     )
     def test_image_face_matcher(self):
 

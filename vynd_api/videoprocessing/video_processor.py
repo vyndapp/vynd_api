@@ -62,8 +62,6 @@ class VideoProcessor:
             # keyframe_id = self.__keyframe_collection.insert_new_keyframe(video_id=video_id)
             # self.__video_collection.add_keyframe(video_id=video_id,
             #                                      keyframe_id=keyframe_id)
-            keyframe.video_id = video_id
-            keyframe.keyframe_id = ""
             face_detection_result: FaceDetectionResults = self.__yolov3_image_face_detector.detect(keyframe)
             face_embedding_result: List[FaceEmbedding] = self.__image_face_embedder.faces_to_embeddings(face_detection_result)
             face_embedding_results.extend(face_embedding_result)
@@ -74,29 +72,28 @@ class VideoProcessor:
         return VideoProcessingResult.SUCCESS
 
     def __update_db(self, video_id: str, group_matches: List[GroupMatch]):
-        self.__add_new_faces(group_matches)
+        self.__add_new_faces(video_id, group_matches)
         self.__add_video_to_faces_assocs(video_id, group_matches)
         self.__add_faces_to_video_assocs(video_id, group_matches)
         self.__video_collection.update_status(video_id, True)
 
-    def __add_new_faces(self, group_matches):
+    def __add_new_faces(self, video_id, group_matches):
         new_faces = []
         for group_match in group_matches:
             if group_match.match_status == FaceMatchStatus.UNKNOWN_FACE:
-                new_faces.append(self.__get_new_face(group_match))
+                new_faces.append(self.__get_new_face(video_id, group_match))
 
         new_ids = deque(self.__face_collection.insert_new_faces(new_faces))
         for group_match in group_matches:
             if group_match.match_status == FaceMatchStatus.UNKNOWN_FACE:
                 group_match.matched_id = new_ids.popleft()
-                
-    def __get_new_face(self, group_match) -> str:
+
+    def __get_new_face(self, video_id, group_match) -> str:
         face_embedding = group_match.face_embeddings[0]
         resized_face_image = image_utils.resize_image(face_embedding.face_image, \
                 new_shape=(self.__default_face_dims))
         return {
-            'keyframe_id' : [face_embedding.keyframe_id],
-            'video_ids': [face_embedding.video_id],
+            'video_ids': [video_id],
             'features': face_embedding.features,
             'face_image': resized_face_image
         }

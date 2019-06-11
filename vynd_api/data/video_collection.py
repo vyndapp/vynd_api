@@ -38,6 +38,12 @@ class VideoCollection:
         return list(self.__collection.find(filter={'is_processed': True},
                                            projection={'_id': True,
                                                        'extension': True}))
+        
+    def get_videos_extensions(self, videos_ids: List[str]):
+        videos_ids = [ObjectId(_id) for _id in videos_ids]
+        return list(self.__collection.find(filter={'_id': {'$in': videos_ids}},
+                                           projection={'_id': False,
+                                                       'extension': True}))
 
     def add_keyframe(self, video_id: str, keyframe_id: str):
         """
@@ -101,7 +107,9 @@ class VideoCollection:
         return self.__collection.delete_many({})
 
     def get_all_video(self):
-        return self.__collection.find({})
+        return list(self.__collection.find(filter={},
+                                      projection={'_id': True,
+                                                  'extension': True}))
     
     def get_number_of_records(self):
         return self.__collection.count_documents({})

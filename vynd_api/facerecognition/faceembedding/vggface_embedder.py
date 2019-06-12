@@ -29,9 +29,10 @@ class VGGFaceEmbedder(ImageFacesEmbedder):
         """
         face_embeddings: List[FaceEmbedding] = []
         for face in detection_results.detected_faces:
-            face_embedding = self.image_to_embedding(face.image)
-            face_embeddings.append(FaceEmbedding(features=face_embedding, 
-                                                 face_image=face.aligned_image))
+            if face.image.shape != (0, 0, 0)  and face.aligned_image.shape != (0, 0, 0):
+                face_embedding = self.image_to_embedding(face.aligned_image)
+                face_embeddings.append(FaceEmbedding(features=face_embedding,
+                                                    face_image=face.aligned_image))
 
         return face_embeddings
 

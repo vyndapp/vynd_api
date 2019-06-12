@@ -15,6 +15,5 @@ def search_by_image(image: np.ndarray, face_collection=CLIENT.vynd_db.face_colle
     for match in matches:
         if match.match_status == FaceMatchStatus.MATCHED:
             faces_ids.append(match.matched_id)
-    if not faces_ids:
-        return []
-    return FaceCollection(collection=face_collection).get_faces_videos(faces_ids=faces_ids)
+    return faces_ids
+    # return FaceCollection(collection=face_collection).get_faces_videos(faces_ids=faces_ids)

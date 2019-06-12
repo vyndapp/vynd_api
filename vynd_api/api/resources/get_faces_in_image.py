@@ -17,6 +17,6 @@ class GetFacesInImage(Resource):
         if request.get_json() and request.get_json().get('image'):
             image = request.get_json().get('image')
             faces_ids = search_by_image(image=image.encode())
-            return jsonify(videos=faces_ids)
+            return jsonify(faces_ids=faces_ids)
         else:
             return jsonify(error="error")

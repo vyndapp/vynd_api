@@ -43,12 +43,13 @@ class TestSearchByImage(unittest.TestCase):
         self.video_processor.process(video_id_a, key_frames)
 
         # Search for an image containg Omar, Hazem, Yahya, Gasser.
-        videos = search_by_image(CLIENT.vynd_db_test.face_collection, self.group_image_b)
-        self.assertEqual(videos, [video_id_a])
+        faces_ids = search_by_image(image=self.group_image_b, face_collection=CLIENT.vynd_db_test.face_collection) 
+        self.assertEqual(len(faces_ids), 3)
 
     def test_no_faces_found(self):
-        videos = search_by_image(CLIENT.vynd_db_test.face_collection, self.group_image_b)
-        self.assertEqual(videos, [])
+        faces_ids = search_by_image(image=self.group_image_b, face_collection=CLIENT.vynd_db_test.face_collection)
+        self.assertEqual(faces_ids, [])
 
 if __name__ == '__main__':
     unittest.main()
+    

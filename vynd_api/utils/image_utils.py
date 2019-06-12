@@ -17,4 +17,8 @@ def rgb_to_base64(image):
     return base64.b64encode(image)
 
 def resize_image(image, new_shape=(96, 96)):
-    return cv2.resize(image, new_shape) 
+    try:
+        return cv2.resize(image, new_shape) 
+    except Exception as e:
+        print(str(e))
+        return np.array([])

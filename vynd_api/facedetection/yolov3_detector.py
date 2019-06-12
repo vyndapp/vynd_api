@@ -22,7 +22,7 @@ from ..test.test_utils import save_img
 class YOLOv3Detector(ImageFaceDetector):
     
     # TODO: check if model is downloaded or not
-    def __init__(self, offset_value=20):
+    def __init__(self, offset_value=5):
         yolov3_weights_path = self.__get_real_path('../models/yolov3/yolov3-wider_16000.weights')
         yolov3_cfg_path = self.__get_real_path('../models/yolov3/yolov3-face.cfg')
         self.__yolov3 = self.__init_detector(weights_path=yolov3_weights_path, 
@@ -31,7 +31,7 @@ class YOLOv3Detector(ImageFaceDetector):
         self.__face_aligner = FaceAlignment()
         self.__default_dims = (416, 416)
         self.__expected_n_channels = 3
-        self.__CONF_THRESHOLD = 0.6
+        self.__CONF_THRESHOLD = 0.7
         self.__NMS_THRESHOLD = 0.4
                 
     def __init_detector(self, weights_path: str, cfg_path: str):
